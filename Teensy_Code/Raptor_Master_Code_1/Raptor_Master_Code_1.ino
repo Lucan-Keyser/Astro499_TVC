@@ -6,6 +6,8 @@
 #include <Adafruit_BNO055.h>
 #include "Adafruit_BMP3XX.h"
 #include <utility/imumaths.h>
+#include <PWMServo.h>
+// #include <math.h>
 
 // Check I2C device address and correct line below (by default address is 0x29 or 0x28)
 //                                   id, address
@@ -53,10 +55,23 @@ int ledPin = 13;
 double LEDTimer = millis(); //units milliseconds
 String command = "";
 
+//Servo setup
+PWMServo myservo;
+
+// PWM Variables
+#define RATIO 3
+#define OFFSET 0
+#define P 1
+#define D 0.075
+#define MAX_ANGLE 5
+
+double last_angle = 0.0;
+double delta = 0.0;
+
 //setup function, runs everything at startup
 void setup(void) {
   Serial.begin(9600);
-  while(!Serial);
+  //while(!Serial);
   // Initialise the IMU 
   if (!bno.begin()) {
     /* There was a problem detecting the BNO055 ... check your connections */
@@ -85,14 +100,18 @@ void setup(void) {
   //LED and reset things
   pinMode(ledPin, OUTPUT);
   reset(); //reset things;
-}
 
+  //[LMK] attach servo
+  myservo.attach(9);
+}
 void loop(void) { //runs continiously, DO NOT ADD DELAYS IN HERE
   updateData(); //gather data
   updateState(); //checks to see if we've changed states
   executeState(); //acts upon state
   //Serial.println(quatAngles[0]*RAD_TO_DEG);
   //Serial.println(altData[0]);
+  // myservo.write(90);
+  calculatePID();
 }
 
 void updateData() { //updates all data
@@ -105,6 +124,9 @@ void updateData() { //updates all data
 
 void calculateNums() { //will be used to implement control logic. 
   flightNumbers();
+  delta = (quatAngles[0]-last_angle)/dt;
+  //Serial.println(delta);
+  last_angle = quatAngles[0];
 }
 
 void flightNumbers() { //basic global variables
@@ -318,4 +340,22 @@ void zeroAltimeter(){ //reset our baseline
 
 void zeroIMU(){ //zeros IMU. May include more things later but for now just zeros quaternion vectors. 
   ori.zero();
+}
+
+void moveServo(double angle){
+  if(angle>MAX_ANGLE){
+    angle = MAX_ANGLE;
+  }
+  else if(angle<-MAX_ANGLE){
+    angle = -MAX_ANGLE;
+  }
+  double command = (RATIO*angle)-OFFSET+90;
+  //if(math.fabs(command)>5)
+  myservo.write(command);
+  Serial.println(command);
+}
+
+void calculatePID(){
+  double angle = ((quatAngles[0] - 0)*P + (delta - 0)*D)*RAD_TO_DEG; 
+  moveServo(angle);
 }
