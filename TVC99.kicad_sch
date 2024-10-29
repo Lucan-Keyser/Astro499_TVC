@@ -2071,20 +2071,22 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 0.254 1.524 0)
+			(property "Reference" "U?"
+				(at 15.24 -0.6349 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
-			(property "Value" ""
-				(at 0 0 0)
+			(property "Value" "~"
+				(at 15.24 -2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
 			(property "Footprint" ""
@@ -3555,8 +3557,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 0 64.77 0)
+			(property "Reference" "U?"
+				(at 0 66.04 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3564,14 +3566,14 @@
 				)
 			)
 			(property "Value" "Teensy4.1"
-				(at 0 62.23 0)
+				(at 0 63.5 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "Teensy_footprints:Teensy41"
 				(at -10.16 10.16 0)
 				(effects
 					(font
@@ -4957,12 +4959,6 @@
 		(uuid "03d14ee7-f025-4525-9387-957193d16eb5")
 	)
 	(junction
-		(at 90.17 57.15)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "046a6a46-c83e-471a-a190-245cdf4ccf6c")
-	)
-	(junction
 		(at 196.85 138.43)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4987,6 +4983,12 @@
 		(uuid "245b5351-ef81-4798-9cd0-b9f404edc694")
 	)
 	(junction
+		(at 194.31 134.62)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "24e1b81d-5352-416d-8728-894062a6efbb")
+	)
+	(junction
 		(at 146.05 59.69)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4997,6 +4999,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "31bddfc8-3e26-4480-b819-9547e8652154")
+	)
+	(junction
+		(at 163.83 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3502bc39-8cf9-4e8b-99e0-12fea9378cad")
 	)
 	(junction
 		(at 90.17 110.49)
@@ -5023,12 +5031,6 @@
 		(uuid "5098bd19-63c3-48be-b8ec-2810d802f1d1")
 	)
 	(junction
-		(at 172.72 57.15)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "51365ad8-23e6-46f7-bf3d-349a6f493f6f")
-	)
-	(junction
 		(at 90.17 72.39)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5041,10 +5043,16 @@
 		(uuid "52dd655d-9ba4-428a-ba2f-4127de057ef8")
 	)
 	(junction
-		(at 90.17 85.09)
+		(at 172.72 57.15)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "62f2e27a-aef0-4a40-8c6f-7a1b1cdc7972")
+		(uuid "57c0ff63-7e55-4551-9849-5d52f6ca7f32")
+	)
+	(junction
+		(at 146.05 87.63)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5847473d-77e7-495f-aec7-14f5df2ee637")
 	)
 	(junction
 		(at 146.05 82.55)
@@ -5101,12 +5109,6 @@
 		(uuid "82abb6d8-aa31-4c2c-9d80-cabef81f5b8e")
 	)
 	(junction
-		(at 90.17 87.63)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9039c07d-8b58-403e-8fc7-8242300eea77")
-	)
-	(junction
 		(at 158.75 110.49)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5143,6 +5145,12 @@
 		(uuid "a57e68b3-a361-4e17-bbbf-e08bea75babc")
 	)
 	(junction
+		(at 90.17 82.55)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a5ce30f5-301e-4be0-a3f3-664ef8aebc9f")
+	)
+	(junction
 		(at 168.91 158.75)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5161,10 +5169,10 @@
 		(uuid "b0a3c4c6-eaeb-4aef-9339-68c80202a83d")
 	)
 	(junction
-		(at 90.17 82.55)
+		(at 90.17 87.63)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "b7c8b17b-aaf3-43a9-8083-46d887f465d5")
+		(uuid "b1645154-3e34-4081-a13f-1a83ce678a36")
 	)
 	(junction
 		(at 165.1 107.95)
@@ -5207,6 +5215,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e4bdc3a9-81a7-49ac-8e44-a15be0840029")
+	)
+	(junction
+		(at 90.17 85.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e5d2d583-d351-49bd-a5b0-812770ed8bc1")
 	)
 	(junction
 		(at 161.29 111.76)
@@ -5258,6 +5272,16 @@
 	)
 	(wire
 		(pts
+			(xy 229.87 135.89) (xy 194.31 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "03ecb71c-1390-4787-b966-379aea98b7f6")
+	)
+	(wire
+		(pts
 			(xy 50.8 29.21) (xy 57.15 29.21)
 		)
 		(stroke
@@ -5265,6 +5289,16 @@
 			(type default)
 		)
 		(uuid "064b1163-5647-468f-ac51-f7d7599a2640")
+	)
+	(wire
+		(pts
+			(xy 229.87 133.35) (xy 229.87 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07ad560f-44d7-4138-b390-9338a1ea66ce")
 	)
 	(wire
 		(pts
@@ -5278,6 +5312,16 @@
 	)
 	(wire
 		(pts
+			(xy 172.72 57.15) (xy 167.64 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a67ce44-728a-4003-851c-0c11ac84f132")
+	)
+	(wire
+		(pts
 			(xy 200.66 48.26) (xy 200.66 59.69)
 		)
 		(stroke
@@ -5285,6 +5329,16 @@
 			(type default)
 		)
 		(uuid "0be80a28-adcb-4c4c-99dc-a236782ee9ad")
+	)
+	(wire
+		(pts
+			(xy 194.31 134.62) (xy 194.31 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0bf5db40-bf6a-4468-ad45-d1a77cbd1608")
 	)
 	(wire
 		(pts
@@ -5508,7 +5562,17 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 40.64) (xy 80.01 82.55)
+			(xy 81.28 41.91) (xy 81.28 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2463d62f-0e21-4acb-bc4d-c17271e5bd0c")
+	)
+	(wire
+		(pts
+			(xy 80.01 40.64) (xy 80.01 85.09)
 		)
 		(stroke
 			(width 0)
@@ -5618,16 +5682,6 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 82.55) (xy 90.17 82.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "36ea1fdf-364b-40fb-9e43-d89bbc46a34f")
-	)
-	(wire
-		(pts
 			(xy 191.77 146.05) (xy 74.93 146.05)
 		)
 		(stroke
@@ -5655,6 +5709,16 @@
 			(type default)
 		)
 		(uuid "3b66dfe7-1068-470d-96e5-ef21ff0cf6bc")
+	)
+	(wire
+		(pts
+			(xy 194.31 135.89) (xy 194.31 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c53cd23-5e17-4a2b-a36c-c256b0d453bd")
 	)
 	(wire
 		(pts
@@ -5858,6 +5922,16 @@
 	)
 	(wire
 		(pts
+			(xy 167.64 57.15) (xy 167.64 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "578eaccf-f44e-46fc-9aee-3109aa5341d1")
+	)
+	(wire
+		(pts
 			(xy 62.23 36.83) (xy 63.5 36.83)
 		)
 		(stroke
@@ -5885,6 +5959,16 @@
 			(type default)
 		)
 		(uuid "59f1279e-8aa9-41ce-8792-b30d78db371a")
+	)
+	(wire
+		(pts
+			(xy 163.83 109.22) (xy 163.83 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c0e26ed-acb1-4e08-b5b8-9f39dd4c3be1")
 	)
 	(wire
 		(pts
@@ -5935,6 +6019,16 @@
 			(type default)
 		)
 		(uuid "62919613-0083-48a2-93f3-84ddcefd7ef2")
+	)
+	(wire
+		(pts
+			(xy 167.64 87.63) (xy 146.05 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "66dce248-0cb3-42fb-9f9f-37156cdea5e5")
 	)
 	(wire
 		(pts
@@ -6058,16 +6152,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 38.1) (xy 172.72 57.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7d293c61-4df1-4112-a87c-2f4c8862a3c7")
-	)
-	(wire
-		(pts
 			(xy 62.23 54.61) (xy 62.23 36.83)
 		)
 		(stroke
@@ -6075,16 +6159,6 @@
 			(type default)
 		)
 		(uuid "7eca7399-98fe-4ba8-a493-2941363ac062")
-	)
-	(wire
-		(pts
-			(xy 81.28 57.15) (xy 90.17 57.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8079b673-86ec-4688-a153-806ce3a17a68")
 	)
 	(wire
 		(pts
@@ -6188,7 +6262,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 39.37) (xy 78.74 85.09)
+			(xy 78.74 39.37) (xy 78.74 87.63)
 		)
 		(stroke
 			(width 0)
@@ -6248,6 +6322,16 @@
 	)
 	(wire
 		(pts
+			(xy 163.83 134.62) (xy 194.31 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f0ebcc5-8248-41ad-829a-0025e741c30e")
+	)
+	(wire
+		(pts
 			(xy 82.55 43.18) (xy 173.99 43.18)
 		)
 		(stroke
@@ -6295,16 +6379,6 @@
 			(type default)
 		)
 		(uuid "a53e51c7-5337-45df-94d3-0a28b88c75e3")
-	)
-	(wire
-		(pts
-			(xy 81.28 41.91) (xy 81.28 57.15)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a55ff725-d96c-4bb4-a016-570cf6854ad1")
 	)
 	(wire
 		(pts
@@ -6388,16 +6462,6 @@
 	)
 	(wire
 		(pts
-			(xy 77.47 87.63) (xy 90.17 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b2562cba-9e3c-4b39-a40f-c7cdd4f707d8")
-	)
-	(wire
-		(pts
 			(xy 199.39 110.49) (xy 199.39 105.41)
 		)
 		(stroke
@@ -6405,6 +6469,16 @@
 			(type default)
 		)
 		(uuid "b34c3ee2-63a4-4670-9930-846eba043bc9")
+	)
+	(wire
+		(pts
+			(xy 80.01 85.09) (xy 90.17 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b796d776-3216-463f-8588-41011a98b923")
 	)
 	(wire
 		(pts
@@ -6688,16 +6762,6 @@
 	)
 	(wire
 		(pts
-			(xy 77.47 38.1) (xy 77.47 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e3425826-bffe-4c10-ae3e-8399216de289")
-	)
-	(wire
-		(pts
 			(xy 81.28 167.64) (xy 81.28 107.95)
 		)
 		(stroke
@@ -6808,16 +6872,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 38.1) (xy 77.47 38.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f1527f01-2ac8-48f0-bfad-3ee888ebc11b")
-	)
-	(wire
-		(pts
 			(xy 72.39 74.93) (xy 90.17 74.93)
 		)
 		(stroke
@@ -6838,13 +6892,23 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 85.09) (xy 90.17 85.09)
+			(xy 78.74 87.63) (xy 90.17 87.63)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "f5936f79-e6bc-4f45-9b1c-5b2a908cbb7b")
+	)
+	(wire
+		(pts
+			(xy 81.28 82.55) (xy 90.17 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f59f4218-ed18-40ee-a922-32d16656beac")
 	)
 	(wire
 		(pts
@@ -6932,7 +6996,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Teensy_footprints:Teensy41"
+		(property "Footprint" "Teensy4.1:Teensy41"
 			(at 107.95 99.06 0)
 			(effects
 				(font
@@ -7161,6 +7225,12 @@
 			(uuid "ad580eb3-48fd-4033-94fd-56f55056197b")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "U1")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/91d4d876-3db1-465d-9f77-1fd5935b8fe0"
 					(reference "U1")
@@ -7179,7 +7249,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "06d0368d-7d4e-4d2d-893e-927d7531f536")
-		(property "Reference" "U5"
+		(property "Reference" "U4"
 			(at 209.55 97.7899 0)
 			(effects
 				(font
@@ -7249,6 +7319,12 @@
 			(uuid "7f1a9d25-3848-44d2-80ea-7387c6ce6e6d")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "U4")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "U5")
@@ -7285,7 +7361,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Buzzer_Beeper:Buzzer_TDK_PS1240P02BT_D12.2mm_H6.5mm"
 			(at 53.975 72.39 90)
 			(effects
 				(font
@@ -7453,6 +7529,12 @@
 			(uuid "6600000e-b57f-46a5-b814-39975b44b1db")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "J1")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/91d4d876-3db1-465d-9f77-1fd5935b8fe0"
 					(reference "J1")
@@ -7471,7 +7553,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "57651575-3e48-4e61-a145-a05adc24ef54")
-		(property "Reference" "M1"
+		(property "Reference" "M2"
 			(at 185.42 150.6965 0)
 			(effects
 				(font
@@ -7489,7 +7571,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B3B-XH-AM_1x03_P2.50mm_Vertical"
 			(at 176.53 157.226 0)
 			(effects
 				(font
@@ -7526,6 +7608,12 @@
 			(uuid "5a0097d1-b529-49c2-a9cc-8a86a6e52cdc")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "M2")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "M1")
@@ -7562,7 +7650,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B3B-XH-AM_1x03_P2.50mm_Vertical"
 			(at 53.34 54.61 0)
 			(effects
 				(font
@@ -7727,6 +7815,12 @@
 			(uuid "606395d3-311a-4190-986b-17197febaf9b")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "J2")
+					(unit 1)
+				)
+			)
 			(project "Teensy_breakout"
 				(path "/91d4d876-3db1-465d-9f77-1fd5935b8fe0"
 					(reference "J2")
@@ -7745,7 +7839,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "654e0753-24a6-4e65-bc84-6e1f06d7897a")
-		(property "Reference" "#PWR01"
+		(property "Reference" "#PWR0101"
 			(at 50.8 38.1 0)
 			(effects
 				(font
@@ -7793,6 +7887,12 @@
 			(uuid "00b7bce0-f238-4a5d-b3e8-2b5503bbfc7f")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "#PWR0101")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "#PWR01")
@@ -7981,7 +8081,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8970504e-a84e-43d8-9b79-022ee1f3f2eb")
-		(property "Reference" "U2"
+		(property "Reference" "U3"
 			(at 208.28 38.7349 0)
 			(effects
 				(font
@@ -7999,7 +8099,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LoRa_RF95:LoRa_RF95 Breakout"
 			(at 193.04 38.1 0)
 			(effects
 				(font
@@ -8072,6 +8172,12 @@
 			(uuid "c3e7c997-ce28-4774-8946-c521ea3eb315")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "U3")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "U2")
@@ -8166,7 +8272,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a9e9cc8d-0f13-431e-99df-b6ca9b04e757")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR0102"
 			(at 45.72 45.72 0)
 			(effects
 				(font
@@ -8214,6 +8320,12 @@
 			(uuid "a1c88e23-c49c-4708-8d32-2b5ed3a03631")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "#PWR0102")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "#PWR02")
@@ -8232,7 +8344,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a9ed339a-29e5-44f2-85db-e074623d0320")
-		(property "Reference" "U6"
+		(property "Reference" "U5"
 			(at 209.55 121.9199 0)
 			(effects
 				(font
@@ -8250,7 +8362,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "BNO055:BNO055"
 			(at 195.58 121.92 0)
 			(effects
 				(font
@@ -8308,6 +8420,12 @@
 			(uuid "5bf606b9-aa1b-4af6-bfc0-5aa983c30ad5")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "U5")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "U6")
@@ -8450,6 +8568,12 @@
 			(uuid "5e39e44f-da43-4398-a916-d56bdb787924")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "Q2")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "Q2")
@@ -8468,7 +8592,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b5e0c6e4-1b17-47a7-a6b0-234b9c07a0e6")
-		(property "Reference" "U3"
+		(property "Reference" "U6"
 			(at 236.22 67.9449 0)
 			(effects
 				(font
@@ -8535,6 +8659,12 @@
 			(uuid "b9c4a15a-01cd-4bb0-82aa-2ac76e55152e")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "U6")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "U3")
@@ -8553,7 +8683,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c39ea1ea-91a1-454d-9c66-b867d9d76d8c")
-		(property "Reference" "M2"
+		(property "Reference" "M3"
 			(at 209.55 150.6965 0)
 			(effects
 				(font
@@ -8571,7 +8701,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B3B-XH-AM_1x03_P2.50mm_Vertical"
 			(at 200.66 157.226 0)
 			(effects
 				(font
@@ -8608,6 +8738,12 @@
 			(uuid "a25dd1c0-78f5-4321-88d1-a7df932f8838")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "M3")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "M2")
@@ -8626,7 +8762,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d5c86874-3af5-4d36-bb27-7245e21f674c")
-		(property "Reference" "U4"
+		(property "Reference" "U2"
 			(at 119.38 22.86 0)
 			(effects
 				(font
@@ -8680,6 +8816,12 @@
 			(uuid "36a55dc2-6eaf-4853-936b-a091e87008fc")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "U2")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "U4")
@@ -8756,6 +8898,12 @@
 			(uuid "feb25fe8-89a7-4667-aee4-a51623e01975")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "Q1")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "Q1")
@@ -8774,7 +8922,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e023b664-d70b-4dd0-9a9d-74ec79edfa05")
-		(property "Reference" "M3"
+		(property "Reference" "M1"
 			(at 161.29 150.6965 0)
 			(effects
 				(font
@@ -8792,7 +8940,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_JST:JST_XH_B3B-XH-AM_1x03_P2.50mm_Vertical"
 			(at 152.4 157.226 0)
 			(effects
 				(font
@@ -8829,6 +8977,12 @@
 			(uuid "2cbd27d6-626f-4047-b08a-d96cdd394bd4")
 		)
 		(instances
+			(project "TVC99"
+				(path "/3412a484-1203-4a0f-bcc1-bd929029440c"
+					(reference "M1")
+					(unit 1)
+				)
+			)
 			(project "TVC flight controller"
 				(path "/8da73977-a3a3-4d48-8eab-5bf110f9b085"
 					(reference "M3")
