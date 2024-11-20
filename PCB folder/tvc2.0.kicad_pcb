@@ -2929,8 +2929,8 @@
 		(at 203 52.975)
 		(descr "Through hole straight pin header, 1x03, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x03 2.54mm single row")
-		(property "Reference" "J3"
-			(at 1.5 -2.33 0)
+		(property "Reference" "PWM 7"
+			(at -0.8 -2.475 0)
 			(layer "F.SilkS")
 			(uuid "d1a854c9-6128-44b3-8b5c-df02a52667ed")
 			(effects
@@ -3634,7 +3634,7 @@
 		(at 208 52.975)
 		(descr "Through hole straight pin header, 1x03, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x03 2.54mm single row")
-		(property "Reference" "J2"
+		(property "Reference" "PWM 8"
 			(at 0 -2.475 0)
 			(layer "F.SilkS")
 			(uuid "0032e2a3-5965-4c5b-9712-5e4b6f485fea")
@@ -4708,8 +4708,8 @@
 		(at 209.5 62.975)
 		(descr "Through hole straight pin header, 1x03, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x03 2.54mm single row")
-		(property "Reference" "J4"
-			(at 0 -2.33 0)
+		(property "Reference" "PWM 6"
+			(at 0.6 -2.375 0)
 			(layer "F.SilkS")
 			(uuid "62a66e9b-41c3-4692-ad15-2efa0d48b894")
 			(effects
@@ -7089,8 +7089,8 @@
 		(at 213 52.975)
 		(descr "Through hole straight pin header, 1x03, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x03 2.54mm single row")
-		(property "Reference" "J1"
-			(at 1 -2.475 0)
+		(property "Reference" "PWM 9"
+			(at 0.7 -2.475 0)
 			(layer "F.SilkS")
 			(uuid "5345bde6-392d-4643-89b4-bd14fbe955b2")
 			(effects
@@ -7983,7 +7983,7 @@
 		(at 204.5 62.975)
 		(descr "Through hole straight pin header, 1x03, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x03 2.54mm single row")
-		(property "Reference" "J5"
+		(property "Reference" "PWM 24"
 			(at 0 -2.33 0)
 			(layer "F.SilkS")
 			(uuid "fb8ff162-0c0b-48ba-b259-30d4e78ae8e5")
@@ -7996,7 +7996,7 @@
 		)
 		(property "Value" "PWM Test OUT"
 			(at 0 7.41 0)
-			(layer "F.Fab")
+			(layer "F.SilkS")
 			(uuid "b58f4104-e08d-45ba-b433-8a0bc9705068")
 			(effects
 				(font
@@ -8985,6 +8985,28 @@
 		(uuid "776ad659-c815-4c57-ae2f-51f53d6b458b")
 	)
 	(gr_text "GND + S\n"
+		(at 200.7 65.6 90)
+		(layer "F.SilkS")
+		(uuid "8bc86ca7-8e74-48c8-89a2-d6dedd7f0d95")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(gr_text "SERVO\n"
+		(at 216 55.4 90)
+		(layer "F.SilkS")
+		(uuid "9bd35e5c-46f8-45d3-a9de-9842f9cd8d1b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(gr_text "GND + S\n"
 		(at 199 56 90)
 		(layer "F.SilkS")
 		(uuid "a9c3f55c-1767-4334-bf34-a8c8ba114371")
@@ -8999,6 +9021,17 @@
 		(at 140.8 42 90)
 		(layer "F.SilkS")
 		(uuid "bbe9dea5-0aa1-46c7-8b08-2a64b82ce3a9")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(gr_text "C3C GRANT STEC\nTVC499 \nFlight Computer v1 11/20/24"
+		(at 166.2 21 0)
+		(layer "F.SilkS")
+		(uuid "d06244f6-b615-4a1c-8ad9-a82de98fc72c")
 		(effects
 			(font
 				(size 1 1)
