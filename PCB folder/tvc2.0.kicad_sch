@@ -4185,12 +4185,6 @@
 		(uuid "411fa36b-ee43-4cad-bb20-b881897ae137")
 	)
 	(junction
-		(at 137.16 144.78)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "438ba714-7769-49b1-ae10-f506bb7b6546")
-	)
-	(junction
 		(at 46.99 173.99)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4561,16 +4555,6 @@
 			(type default)
 		)
 		(uuid "3e307bb9-cdd0-486f-8475-e1abc201cf3e")
-	)
-	(wire
-		(pts
-			(xy 137.16 140.97) (xy 137.16 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3eaaa792-f852-4395-ac8d-34c30d80b491")
 	)
 	(wire
 		(pts
@@ -5051,16 +5035,6 @@
 			(type default)
 		)
 		(uuid "c22d4241-1af5-4cec-908a-3391f7a98b2e")
-	)
-	(wire
-		(pts
-			(xy 124.46 144.78) (xy 137.16 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c5a7c91c-54f8-44bb-b05e-d5dab82952b5")
 	)
 	(wire
 		(pts
@@ -6554,7 +6528,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal"
 			(at 114.3 157.48 0)
 			(effects
 				(font
@@ -6899,7 +6873,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 88.392 173.99 90)
 			(effects
 				(font
@@ -7508,7 +7482,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_THT:TO-220-3_Vertical"
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-223"
 			(at 137.16 127.635 0)
 			(effects
 				(font
@@ -7656,7 +7630,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "BNO055:BNO055"
+		(property "Footprint" "tvc499:BNO055"
 			(at 259.08 86.36 0)
 			(effects
 				(font
@@ -8021,7 +7995,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 149.5552 144.78 0)
 			(effects
 				(font
@@ -8427,7 +8401,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 94.742 186.69 90)
 			(effects
 				(font
@@ -8531,6 +8505,72 @@
 			(project ""
 				(path "/3cebab3b-ef7a-41c0-87f0-9665bea660f9"
 					(reference "#PWR032")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 124.46 144.78 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a0926303-8b78-4ba9-b168-9e084ce7d30c")
+		(property "Reference" "#PWR036"
+			(at 124.46 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 124.46 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 124.46 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 124.46 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 124.46 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "dc457ce6-cc8d-4b14-b2f8-f52420d02a16")
+		)
+		(instances
+			(project "tvc2.0"
+				(path "/3cebab3b-ef7a-41c0-87f0-9665bea660f9"
+					(reference "#PWR036")
 					(unit 1)
 				)
 			)
@@ -8767,7 +8807,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 113.792 186.69 90)
 			(effects
 				(font
@@ -8837,7 +8877,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 59.182 185.42 90)
 			(effects
 				(font
@@ -9109,7 +9149,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Teensy4.1:Teensy41"
+		(property "Footprint" "tvc499:Teensy41"
 			(at 58.42 74.93 0)
 			(effects
 				(font
@@ -9374,7 +9414,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 33.782 172.72 90)
 			(effects
 				(font
@@ -9712,7 +9752,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "LoRa_RF95:LoRa_RF95 Breakout"
+		(property "Footprint" "tvc499:LoRa_RF95 Breakout"
 			(at 194.31 34.29 0)
 			(effects
 				(font
@@ -10196,6 +10236,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 137.16 140.97 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f57526b5-b010-4ec7-a420-094da7fcc879")
+		(property "Reference" "#PWR037"
+			(at 137.16 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 137.16 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 137.16 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 137.16 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 137.16 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8e0fefeb-477c-42f6-b43d-c9cc8dfb819a")
+		)
+		(instances
+			(project "tvc2.0"
+				(path "/3cebab3b-ef7a-41c0-87f0-9665bea660f9"
+					(reference "#PWR037")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 222.25 147.32 270)
 		(unit 1)
@@ -10357,7 +10463,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal"
 			(at 59.69 156.21 0)
 			(effects
 				(font
@@ -10427,7 +10533,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
 			(at 40.132 185.42 90)
 			(effects
 				(font
@@ -10497,7 +10603,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
 			(at 125.4252 144.78 0)
 			(effects
 				(font
