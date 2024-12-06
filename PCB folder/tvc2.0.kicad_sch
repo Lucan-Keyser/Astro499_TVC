@@ -6161,7 +6161,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "tvc499:BMP390"
 			(at 265.43 35.56 0)
 			(effects
 				(font

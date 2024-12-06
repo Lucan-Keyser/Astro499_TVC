@@ -1,0 +1,13 @@
+Form 889/tax,Part Name,Justification,Vendor,Unit Cost,Quantity,Shipping,Total Cost,Delivery/Pickup,Link,Username,Password
+Yes ,0.1uF cap 1206,component for flight controller PCB,DigiKey,$0.21 ,20,,$4.28 ,Shipping,https://www.digikey.com/en/products/detail/vishay-vitramon/VJ1206Y104KXQCW1BC/8318800,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,0.33uF cap 1206,component for flight controller PCB,DigiKey,$0.18 ,20,,$3.64 ,Shipping,https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/885012208010/5453537,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,SMD LM7805,component for flight controller PCB,DigiKey,$1.01 ,10,,$10.05 ,Shipping,https://www.digikey.com/en/products/detail/texas-instruments/LM7805MPX-NOPB/6110583,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,terminal blocks,component for flight controller PCB,DigiKey,$0.52 ,25,,$12.97 ,Shipping,https://www.digikey.com/en/products/detail/te-connectivity-amp-connectors/282837-2/2187973,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,IRLZ44NPBF,component for flight controller PCB,DigiKey,$1.81 ,12,,$21.72 ,Shipping,https://www.digikey.com/en/products/detail/infineon-technologies/IRLZ44NPBF/811808,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,1kohm 1206,component for flight controller PCB,DigiKey,$0.02 ,50,,$0.95 ,Shipping,https://www.digikey.com/en/products/detail/stackpole-electronics-inc/RNCP1206FTD1K00/2240337?s=N4IgTCBcDaIEoDkDCAFAjGADANgGIBUARNAaU0xAF0BfIA,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,51kohm 1206,component for flight controller PCB,DigiKey,$0.01 ,50,,$0.66 ,Shipping,https://www.digikey.com/en/products/detail/stackpole-electronics-inc/RMCF1206JT51K0/1753857?s=N4IgTCBcDaIEoFkDCAxAjGADANgFIBUBWNAaUxAF0BfIA,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,91kohm 1206,component for flight controller PCB,DigiKey,$0.02 ,50,,$0.97 ,Shipping,https://www.digikey.com/en/products/detail/yageo/RC1206FR-0791KL/729169?s=N4IgTCBcDaIEoGECMYAMA2AYnAtKg7AJxIDSAMiALoC%2BQA,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,WS2812B 2020,component for flight controller PCB,Digikey,$3.95 ,2,,$7.90 ,Shipping,https://www.digikey.com/en/products/detail/adafruit-industries-llc/4684/13170959,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+Yes ,Piezo Buzzer - PS1240,component for flight controller PCB,Adafruit,$0.45 ,10,,$4.54 ,Shipping,https://www.digikey.com/en/products/detail/tdk-corporation/PS1240P02BT/935924,bluehorizon.rocketry@afacademy.af.edu,ihaveabigrocket
+,,,,,,,,,,,
+,,,,,,,$67.68 ,,,,

@@ -1,4 +1,4 @@
-24196230587866149
+24194507110050297
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -13,20 +13,6 @@ audio belton reverb
 0
 7
 7
-BNO055
-1X01_ROUND
-
-
-0
-1
-1
-BNO055
-BNO055
-
-
-0
-10
-10
 Battery
 BatteryClip_Keystone_54_D16-19mm
 Battery clip for batteries with a diameter between 16-19 mm: https://www.keyelco.com/product.cfm/product_id/826
@@ -65253,20 +65239,6 @@ Yellow 5381 Series LED
 0
 2
 2
-LoRa_RF95
-1X09_ROUND_70
-
-
-0
-9
-9
-LoRa_RF95
-LoRa_RF95 Breakout
-
-
-0
-14
-14
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet
@@ -91573,13 +91545,6 @@ Logo WEEE
 0
 0
 0
-Teensy4.1
-Teensy41
-
-
-0
-67
-67
 TerminalBlock
 TerminalBlock_Altech_AK300-2_P5.00mm
 Altech AK300 terminal block, pitch 5.0mm, 45 degree angled, see http://www.mouser.com/ds/2/16/PCBMETRC-24178.pdf
@@ -97999,3 +97964,31 @@ Varistor VF
 0
 2
 2
+tvc499
+BMP390
+
+
+0
+9
+9
+tvc499
+BNO055
+
+
+0
+10
+10
+tvc499
+LoRa_RF95 Breakout
+
+
+0
+14
+14
+tvc499
+Teensy41
+
+
+0
+67
+67
