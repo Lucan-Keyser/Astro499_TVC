@@ -1,141 +1,129 @@
 import processing.serial.*;
-import controlP5.*; // Import ControlP5 for GUI elements
+import controlP5.*;
 
-PShape rocket; // 3D rocket model
-Serial port;   // Serial connection
-float roll = 0, pitch = 0, yaw = 0; // Euler angles
+PShape rocket;
+Serial port;
+float roll = 0, pitch = 0, yaw = 0;
+float altitude = 0;
+int yawServo = 0, pitchServo = 0;
 
-// Data arrays to store graph points
-int maxPoints = 300; // Number of points to display on the graph
+// Data arrays for graphs
+int maxPoints = 300;
 float[] yawHistory = new float[maxPoints];
 float[] pitchHistory = new float[maxPoints];
 float[] rollHistory = new float[maxPoints];
+float[] altitudeHistory = new float[maxPoints];
 int currentIndex = 0;
 
-// Communication state
-boolean commConnected = false; // Status of communication
-String rawSerialData = "";     // Raw serial data buffer
-String[] availablePorts;       // Array to store available ports
+boolean commConnected = false;
+String rawSerialData = "";
+String[] availablePorts;
 
-ControlP5 cp5;                 // GUI library instance
-DropdownList portDropdown;     // Dropdown list for selecting COM port
+
+ControlP5 cp5;
+DropdownList portDropdown;
 
 void setup() {
-  size(1200, 1000, P3D);
+  // Set default size first
+  size(800, 600, P3D); // Provide a default size initially (fixed values)
+  
+  
+  
+
+  // Now set the dynamic size for the sketch window
+  surface.setSize(displayWidth * 3 / 4, displayHeight * 3 / 4); // Dynamically resize the window
+  
+  surface.setResizable(true);
+
   frameRate(30);
 
-  // Load the rocket model
-  rocket = loadShape("rocket.obj"); // Replace with your model file name
+  rocket = loadShape("rocket.obj");
   if (rocket == null) {
-    println("Error loading rocket model. Ensure the file is in the data folder.");
+    println("Error loading rocket model.");
     exit();
   }
 
-  // List available serial ports
   availablePorts = Serial.list();
-  if (availablePorts.length == 0) {
-    println("No serial ports available.");
-  }
   println("Available serial ports:");
   for (int i = 0; i < availablePorts.length; i++) {
     println(i + ": " + availablePorts[i]);
   }
 
-  // Initialize ControlP5 and add a dropdown list for port selection
   cp5 = new ControlP5(this);
   portDropdown = cp5.addDropdownList("portDropdown")
-                    .setPosition(20, 20)
-                    .setSize(200, 200)
-                    .setBarHeight(30)
-                    .setItemHeight(20)
-                    .setColorBackground(color(50))
-                    .setColorActive(color(100))
-                    .setLabel("Select COM Port");
+    .setPosition(20, 20)
+    .setSize(200, 200)
+    .setBarHeight(30)
+    .setItemHeight(20)
+    .setColorBackground(color(50))
+    .setColorActive(color(100))
+    .setLabel("Select COM Port");
 
-  // Populate the dropdown list with available ports
   for (int i = 0; i < availablePorts.length; i++) {
     portDropdown.addItem(availablePorts[i], i);
   }
-
-  // Add a listener for port selection
-  portDropdown.addCallback(new CallbackListener() {
-    public void controlEvent(CallbackEvent theEvent) {
-      if (theEvent.getAction() == ControlP5.ACTION_BROADCAST) {
-        int selectedIndex = (int) portDropdown.getValue();
-        println("Selected port: " + availablePorts[selectedIndex]);
-        connectToPort(selectedIndex);
-      }
-    }
-  });
+  
 }
+
 
 void draw() {
   background(0);
+  lights();
 
-  // Display COM selection instructions if not connected
   if (!commConnected) {
     fill(255);
     textSize(18);
-    textAlign(LEFT, TOP);
-    text("Select a COM port to connect.", 725, 30);
+    text("Select a COM port to connect.", width / 2 - 100, 30);
   }
 
-  lights();
-
-  // Draw communication status
   drawCommStatus();
-
-  // Draw raw serial terminal
   drawSerialTerminal();
 
-  // 3D Visualization
   pushMatrix();
   translate(width / 2, height / 4, -300);
-
-  // Apply initial rotations to make the rocket vertical
-  rotateY(-HALF_PI);
-  rotateZ(HALF_PI);
-
-  // Apply live rotations (yaw, pitch, roll)
+  
+  rotateZ(PI);
   rotateZ(radians(yaw));
-  rotateX(radians(pitch));
+  rotateX(-radians(pitch));
   rotateY(radians(roll));
-
-  // Scale the rocket by 3x and draw it
   scale(3);
   shape(rocket);
   popMatrix();
 
-  // Update and draw graphs
-  updateGraphs();
   drawGraphs();
-
-  // Display telemetry data
   displayTelemetry();
+}
+
+void controlEvent(ControlEvent theEvent) {
+  if (theEvent.getController().getName().equals("portDropdown")) {
+    int selectedIndex = (int) theEvent.getValue();
+    println("Selected port: " + availablePorts[selectedIndex]);
+    connectToPort(selectedIndex);
+  }
 }
 
 void connectToPort(int index) {
   try {
     if (port != null) {
-      port.stop(); // Stop any existing port connection
+      port.stop();
     }
     port = new Serial(this, availablePorts[index], 9600);
-    port.bufferUntil('\n'); // Read until newline character
+    port.bufferUntil('\n');
     commConnected = true;
 
-    // Disable the dropdown after selection
+    println("Connected to " + availablePorts[index]);
     portDropdown.setLock(true);
-  } catch (Exception e) {
+  }
+  catch (Exception e) {
     println("Error connecting to port: " + availablePorts[index]);
     commConnected = false;
   }
 }
 
 void drawCommStatus() {
-  fill(commConnected ? color(0, 255, 0) : color(255, 0, 0)); // Green if connected, red if not
+  fill(commConnected ? color(0, 255, 0) : color(255, 0, 0));
   rect(1000, 20, 150, 40);
   fill(255);
-  textSize(15);
   textAlign(CENTER, CENTER);
   text(commConnected ? "Connected" : "Disconnected", 1075, 38);
 }
@@ -144,8 +132,6 @@ void drawSerialTerminal() {
   fill(50);
   rect(20, 775, 1160, 200);
   fill(255);
-  textSize(12);
-  textAlign(LEFT, TOP);
   text("Serial Terminal (Raw Data):", 30, 790);
   text(rawSerialData, 30, 800);
 }
@@ -157,32 +143,55 @@ void serialEvent(Serial port) {
     if (rawSerialData.length() > 5000) {
       rawSerialData = rawSerialData.substring(0, 5000);
     }
-    parseTelemetry(data);
-    commConnected = true;
+    parseTelemetry(data.trim());
   }
 }
 
 void parseTelemetry(String data) {
   try {
-    String[] values = split(trim(data), ','); // Split by commas
-    if (values.length == 3) { // Expecting yaw, pitch, roll
-      yaw = float(split(values[0], ':')[1]);
-      pitch = float(split(values[1], ':')[1]);
-      roll = float(split(values[2], ':')[1]);
-
-      // Update graphs
-      yawHistory[currentIndex] = yaw;
-      pitchHistory[currentIndex] = pitch;
-      rollHistory[currentIndex] = roll;
-      currentIndex = (currentIndex + 1) % maxPoints;
+    String[] components = split(data, ';');
+    if (components.length != 3) {
+      throw new Exception("Invalid telemetry format");
     }
-  } catch (Exception e) {
+
+    // Parse YPR
+    if (components[0].startsWith("YPR:")) {
+      String[] yprValues = split(components[0].substring(4), ',');
+      if (yprValues.length == 3) {
+        yaw = float(yprValues[0]);
+        pitch = float(yprValues[1]);
+        roll = float(yprValues[2]);
+      }
+    }
+
+    // Parse Altitude
+    if (components[1].startsWith("Alt:")) {
+      altitude = float(components[1].substring(5));
+    }
+
+    // Parse Servo
+    if (components[2].startsWith("Servo:")) {
+      String[] servoValues = split(components[2].substring(7), ',');
+      if (servoValues.length == 2) {
+        yawServo = int(servoValues[0]);
+        pitchServo = int(servoValues[1]);
+      }
+    }
+
+    updateGraphData();
+  }
+  catch (Exception e) {
     println("Error parsing telemetry: " + data);
+    println("Exception: " + e.getMessage());
   }
 }
 
-void updateGraphs() {
-  // Graphs are updated in parseTelemetry()
+void updateGraphData() {
+  yawHistory[currentIndex] = yaw;
+  pitchHistory[currentIndex] = pitch;
+  rollHistory[currentIndex] = roll;
+  altitudeHistory[currentIndex] = altitude;
+  currentIndex = (currentIndex + 1) % maxPoints;
 }
 
 void drawGraphs() {
@@ -194,6 +203,7 @@ void drawGraphs() {
   drawLineGraph(graphX, graphY, graphWidth, graphHeight, yawHistory, color(255, 0, 0), "Yaw", -180, 180);
   drawLineGraph(graphX, graphY + 120, graphWidth, graphHeight, pitchHistory, color(0, 255, 0), "Pitch", -90, 90);
   drawLineGraph(graphX, graphY + 240, graphWidth, graphHeight, rollHistory, color(0, 0, 255), "Roll", -180, 180);
+  drawLineGraph(graphX, graphY + 360, graphWidth, graphHeight, altitudeHistory, color(255, 255, 0), "Altitude", -10, 100);
 }
 
 void drawLineGraph(int x, int y, int w, int h, float[] data, color c, String label, float minValue, float maxValue) {
@@ -202,12 +212,7 @@ void drawLineGraph(int x, int y, int w, int h, float[] data, color c, String lab
   rect(x, y, w, h);
 
   fill(255);
-  textSize(12);
-  textAlign(LEFT, CENTER);
   text(label, x - 40, y + h / 2);
-  text(nf(maxValue, 0, 0), x - 30, y + 10);
-  text(nf(minValue, 0, 0), x - 30, y + h - 5);
-  text("0", x - 20, y + h / 2 + 5);
 
   beginShape();
   for (int i = 0; i < maxPoints; i++) {
@@ -220,9 +225,10 @@ void drawLineGraph(int x, int y, int w, int h, float[] data, color c, String lab
 
 void displayTelemetry() {
   fill(255);
-  textSize(15);
-  textAlign(LEFT, TOP);
   text("Yaw: " + nf(yaw, 1, 2), 10, 500);
   text("Pitch: " + nf(pitch, 1, 2), 10, 520);
   text("Roll: " + nf(roll, 1, 2), 10, 540);
+  text("Altitude: " + nf(altitude, 1, 2), 10, 560);
+  text("Yaw Servo: " + yawServo, 10, 580);
+  text("Pitch Servo: " + pitchServo, 10, 600);
 }
