@@ -1,0 +1,23 @@
+﻿Part,Part PIN,Teensy Pin
+Pyro1,fire,28
+Pyro1,Analog continuity test,25
+Pyro2,fire,29
+Pyro2,Analog continuity test,26
+Buzzer,high side,4
+Buzzer,low side,5
+PWM 1,signal,7
+PWM 2,signal,6
+PWM 3,signal,24
+Servo 1,signal,8
+Servo 2,signal,9
+BNO055,SCL,19
+BNO055,SDA,18
+LED,signal,3
+LoRa,G0,1
+LoRa,SCK,13
+LoRa,MISO,12
+LoRa,MOSI,11
+LoRa,CS,10
+LoRa,RST,23
+BMP390,SCL,16
+BMP390,SDA,17
