@@ -31,6 +31,7 @@ void setup() {
 }
 
 void loop() {
+  // Receive data from Flight Controller and forward to Processing
   if (rf95.available()) {
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
@@ -39,4 +40,17 @@ void loop() {
       Serial.println((char *)buf);
     }
   }
+
+  // Forward commands from Processing to Flight Controller via LoRa
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+
+    Serial.print("GSE Sending via LoRa: ");
+    Serial.println(command);
+
+    rf95.send((uint8_t *)command.c_str(), command.length());
+    rf95.waitPacketSent();
+  }
+
 }
