@@ -2,6 +2,11 @@ import processing.serial.*;
 import controlP5.*;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+PrintWriter dataFile;
+boolean fileInitialized = false;
+String filename;
 
 // -----------------------------------------
 // Global Variables
@@ -14,9 +19,13 @@ Textarea consoleOutput;
 Textarea serialOutput;
 
 // Telemetry
-float roll = 0, pitch = 0, yaw = 0;
-float altitude = 0;
-int yawServo = 0, pitchServo = 0;
+float yaw, pitch, roll, altitude, yawServo, pitchServo;
+
+//Pyro 
+boolean pyro1Continuity = false;
+boolean pyro2Continuity = false;
+
+
 
 // Graph Data
 int maxPoints = 300;
@@ -137,6 +146,17 @@ void setup() {
 
   // Print initial message
   println("Setup complete. Waiting for actions...");
+  
+  
+  String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+  filename = "flight_data_" + timestamp + ".csv";
+  dataFile = createWriter(dataPath(filename));
+  
+  // Write CSV header
+  dataFile.println("Timestamp,ElapsedMillis,Yaw,Pitch,Roll,Altitude,YawServo,PitchServo");
+  dataFile.flush(); // Force write to disk
+  println("Logging to: " + dataPath(filename));
+
 }
 
 // -----------------------------------------
@@ -262,93 +282,51 @@ void disconnectFromPort() {
 }
 
 // -----------------------------------------
-// Serial Event
+// Serial Event (Modified)
 // -----------------------------------------
 void serialEvent(Serial port) {
-  String data = port.readStringUntil('\n');
-  if (data != null) {
-    data = data.trim();
-    serialBuffer += data + "\n";
-
-    // Keep serial buffer manageable
-    if (serialBuffer.length() > 8000) {
-      serialBuffer = serialBuffer.substring(serialBuffer.length() - 8000);
-    }
-
-    serialOutput.setText(serialBuffer);
-    int totalLines = serialBuffer.split("\n").length;
-    serialOutput.scroll(totalLines);
-
-    // Parse the telemetry
-    parseTelemetry(data);
-  }
-}
-
-// -----------------------------------------
-// Telemetry Parsing
-// -----------------------------------------
-void parseTelemetry(String data) {
   try {
-    // e.g. "YPR:-0.00,0.39,-0.58; Alt:-0.91; Servo:255,255"
-    String[] components = split(data, ';');
-    if (components.length < 3) {
-      println("Invalid format (needs 3 parts): " + data);
-      return;
-    }
-
-    // YPR chunk
-    String yprChunk = trim(components[0]);
-    if (yprChunk.startsWith("YPR:") && yprChunk.length() > 4) {
-      String yprString = yprChunk.substring(4).trim();
-      String[] yprVals = split(yprString, ',');
-      if (yprVals.length == 3) {
-        yaw   = float(yprVals[0]);
-        pitch = float(yprVals[1]);
-        roll  = float(yprVals[2]);
-      } else {
-        println("Bad YPR data: " + yprChunk);
+    String rawData = port.readStringUntil('\n');
+    if (rawData != null) {
+      rawData = rawData.trim();
+      String[] parts = split(rawData, ',');
+      
+      if (parts.length == 6) {
+        // Parse values
+        yaw = float(parts[0]);
+        pitch = float(parts[1]);
+        roll = float(parts[2]);
+        altitude = float(parts[3]);
+        yawServo = float(parts[4]);
+        pitchServo = float(parts[5]);
+        
+        // Update display
+        updateGraphData();
+        
+        // Log to file
+        String timestamp = new SimpleDateFormat("HH:mm:ss.SSS").format(new Date());
+        String dataLine = String.join(",",
+          timestamp,
+          str(millis()),
+          parts[0],  // Yaw
+          parts[1],  // Pitch
+          parts[2],  // Roll
+          parts[3],   // Altitude
+          parts[4],
+          parts[5]
+        );
+        
+        dataFile.println(dataLine);
+        dataFile.flush(); // Ensure data is written immediately
       }
-    } else {
-      println("Missing or invalid YPR => " + yprChunk);
     }
-
-    // Alt chunk
-    String altChunk = trim(components[1]);
-    if (altChunk.startsWith("Alt:") && altChunk.length() > 4) {
-      String altString = altChunk.substring(4).trim();
-      altitude = float(altString);
-    } else {
-      println("Missing or invalid Alt => " + altChunk);
-    }
-
-    // Servo chunk
-    String servoChunk = trim(components[2]);
-    if (servoChunk.startsWith("Servo:") && servoChunk.length() > 6) {
-      String servoString = servoChunk.substring(6).trim();
-      String[] servoVals = split(servoString, ',');
-      if (servoVals.length == 2) {
-        yawServo   = int(servoVals[0]);
-        pitchServo = int(servoVals[1]);
-      } else {
-        println("Bad Servo data: " + servoChunk);
-      }
-    } else {
-      println("Missing or invalid Servo => " + servoChunk);
-    }
-
-    // If any are NaN, skip updating
-    if (Float.isNaN(yaw) || Float.isNaN(pitch) ||
-        Float.isNaN(roll) || Float.isNaN(altitude)) {
-      println("Parsed NaN from data: " + data);
-      return;
-    }
-    updateGraphData();
-  }
-  catch (Exception e) {
-    println("Error parsing telemetry: " + data);
-    println("Exception: " + e.getMessage());
+  } catch (Exception e) {
+    println("Error: " + e);
   }
 }
+
+
+
 
 // -----------------------------------------
 // Display Telemetry Text
@@ -361,6 +339,12 @@ void displayTelemetry() {
   text("Altitude: " + nf(altitude, 1, 2), 73, 560);
   text("Yaw Servo: " + yawServo + "°",    73, 580);
   text("Pitch Servo: " + pitchServo + "°",75, 600);
+    // Continuity Status
+  fill(pyro1Continuity ? color(0, 255, 0) : color(255, 0, 0));
+  text("Pyro1 Continuity: " + (pyro1Continuity ? "OK" : "NO"), 100, 620);
+
+  fill(pyro2Continuity ? color(0, 255, 0) : color(255, 0, 0));
+  text("Pyro2 Continuity: " + (pyro2Continuity ? "OK" : "NO"), 100, 640);
 }
 
 // -----------------------------------------
