@@ -33,9 +33,9 @@ void playAlertTone(int frequency, int duration);
  * @brief Initialize hardware components (LEDs, pyro channels, buzzer)
  * @param leds Pointer to LED array
  * @param separationTriggered Pointer to separation flag
- * @param separationStartTime Pointer to separation start time
+ * @param launchTriggered Pointer to launch flag
  */
-void initializeHardware(CRGB* leds, bool* separationTriggered, unsigned long* separationStartTime);
+void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTriggered);
 
 /**
  * @brief Check pyro continuity and buzz if continuity is detected
@@ -45,12 +45,18 @@ void initializeHardware(CRGB* leds, bool* separationTriggered, unsigned long* se
 bool checkPyroContinuity();
 
 /**
- * @brief Trigger separation sequence (fire pyro channels)
+ * @brief Trigger separation sequence (fire pyro channel 2)
  * @param leds Pointer to LED array
  * @param separationTriggered Pointer to separation flag
- * @param separationStartTime Pointer to separation start time
  */
-void triggerSeparation(bool* separationTriggered, unsigned long* separationStartTime);
+void triggerSeparation(bool* separationTriggered);
+
+
+/**
+ * @brief Trigger launch sequence (fire pyro channels 1)
+ * @param launchTriggered Pointer to launch flag
+ */
+void triggerLaunch(bool* launchTriggered);
 
 
 #endif // HARDWARE_H

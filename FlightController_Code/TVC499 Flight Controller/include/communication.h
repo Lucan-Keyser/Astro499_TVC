@@ -40,9 +40,9 @@ void checkForCommands(RH_RF95* rf95, String* command);
  * @brief Process serial commands looking for "SEPARATE" or "LAUNCH"
  * @param command Pointer to command string
  * @param separationTriggered Pointer to separation flag
- * @param separationStartTime Pointer to separation start time
+ * @param launchTriggered Pointer to launch flag
  */
-void readSerial(String* command, bool* separationTriggered, unsigned long* separationStartTime);
+void readSerial(String* command, bool* separationTriggered, bool* launchTriggered);
 
 /**
  * @brief Send telemetry data over LoRa

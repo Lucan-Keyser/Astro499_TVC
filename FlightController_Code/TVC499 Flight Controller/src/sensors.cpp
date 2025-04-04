@@ -38,8 +38,10 @@ bool initializeSensors(Adafruit_BNO055* bno, Adafruit_BMP3XX* bmp) {
 
 void updateIMU(Adafruit_BNO055* bno, double gyroRates[3], double gyroOffsets[3]) {
     sensors_event_t angVelocityData;
-    static unsigned long lastTime = micros(); // Initialize last time to current time
-    double dt = 0;
+
+
+    // Record start time
+    unsigned long startTime = micros();
 
     // Get gyroscope data with offsets
     if (bno->getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE)) {
@@ -61,9 +63,12 @@ void updateIMU(Adafruit_BNO055* bno, double gyroRates[3], double gyroOffsets[3])
     // }
 
     // Calculate time delta
-    dt = (micros() - lastTime) / 1000000.0; // Convert microseconds to seconds
-    lastTime = micros(); // Update last time for next call
+
+    unsigned long endTime = micros();
+    double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
+    // Print time delta
     printf("dt_updateIMU: %f\n", dt); // Print time delta
+
 
     // Serial.print("Gyro Rates (calibrated): ");
     // Serial.print(gyroRates[0]); Serial.print(", ");
@@ -72,12 +77,11 @@ void updateIMU(Adafruit_BNO055* bno, double gyroRates[3], double gyroOffsets[3])
 }
 
 bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float refPressure) {
-    // Create a static variable to track the last time this function was called
-    static unsigned long lastTime = micros(); // Initialize last time to current time
-    double dt = 0;
 
-    // Start timing the function execution
+
+    // Record start time
     unsigned long startTime = micros();
+
 
     // Read data from the BMP sensor
     if (!bmp->performReading()) {
@@ -91,8 +95,8 @@ bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float refPressure)
     altData[2] = bmp->temperature;                // Temperature
 
     // Calculate time delta of function execution
-    dt = (micros() - startTime) / 1000000.0; // Convert microseconds to seconds
-
+    unsigned long endTime = micros();
+    double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
     printf("dt_updateAltimeter: %f\n", dt); // Print time delta
 
     return true;

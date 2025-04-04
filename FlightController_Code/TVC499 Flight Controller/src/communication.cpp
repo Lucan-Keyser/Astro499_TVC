@@ -40,6 +40,10 @@ bool initializeCommunication(RH_RF95* rf95, unsigned long* lastTelemetryTime) {
 }
 
 void checkForCommands(RH_RF95* rf95, String* command) {
+
+    //start timer
+    unsigned long startTime = micros();
+
     // Check for incoming LoRa commands
     if (rf95->available()) {
         // Buffer for received message
@@ -60,9 +64,14 @@ void checkForCommands(RH_RF95* rf95, String* command) {
             //Serial.println("Received command: " + receivedCommand);
             }
         }
+    
+    //end timer
+    unsigned long endTime = micros();
+    double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
+    printf("dt_LoRa_com_check: %f\n", dt); // Print time delta
 }
 
-void readSerial(String* command, bool* separationTriggered, unsigned long* separationStartTime) { 
+void readSerial(String* command, bool* separationTriggered, bool* launchTriggered) { 
     // Check for incoming serial commands
     if (Serial.available()) {
         // Read command from Serial
@@ -72,10 +81,15 @@ void readSerial(String* command, bool* separationTriggered, unsigned long* separ
         Serial.println(*command);
         
         // Process specific commands
-        if (command->equals("SEPARATE") || command->equals("LAUNCH")) {
+        if (command->equals("SEPARATE")) {
             // Trigger separation or launch sequence
             Serial.println("Triggering PYROS!");
-            triggerSeparation(separationTriggered, separationStartTime);
+            triggerSeparation(separationTriggered);
+        }
+        if (command ->equals("LAUNCH")) {
+            // Trigger launch sequence
+            Serial.println("Triggering Launch!");
+            triggerLaunch(separationTriggered);
         }
     }
 }
@@ -83,8 +97,9 @@ void readSerial(String* command, bool* separationTriggered, unsigned long* separ
 void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], PWMServo* yawServo, PWMServo* pitchServo) {
     // Create buffer for message
     char message[60]; 
-    static unsigned long lastTime = micros(); // Initialize last time to current time
-    double dt = 0;
+
+    // Record start time
+    unsigned long startTime = micros();
     
     // Extract orientation data, convert to degrees
     float yaw = quatAngles[0] * RAD_TO_DEG;
@@ -107,8 +122,10 @@ void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], PWMServo* 
     rf95->send((uint8_t *)message, strlen(message));
     rf95->waitPacketSent(); //possibly remove to let program still run without pausing code?
 
-    dt = (micros() - lastTime) / 1000000.0; // Convert microseconds to seconds
-    lastTime = micros(); // Update last time for next call
+    unsigned long endTime = micros();
+
+    // Calculate and print the time delta
+    double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
     printf("dt_LoRa_send: %f\n", dt); // Print time delta
     //WE WANT TO USE THIS TO THEN FIND MAIN LOOP TIME FOR EXECTUION OF CONTROL ALGORITHIM AND COMPUTATION
     //THEN WE CAN ACCOUNT FOR THE TIME FOR PACKET SEND AND REMOVE WAITPACKETSENT TO LET CODE STILL RUN BUT 

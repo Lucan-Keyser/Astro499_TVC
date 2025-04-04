@@ -32,11 +32,10 @@ void playAlertTone(int frequency, int duration) {
     digitalWrite(BUZZER_LOW, LOW);
 }
 
-void initializeHardware(CRGB* leds, bool* separationTriggered, 
-                       unsigned long* separationStartTime) {
+void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTriggered) {
     // Initialize separation state
     *separationTriggered = false;
-    *separationStartTime = 0;
+    *launchTriggered = false;
     
     // Initialize buzzer pins
     pinMode(BUZZER_HIGH, OUTPUT);
@@ -96,24 +95,22 @@ bool checkPyroContinuity() {
     }
 }
 
-void triggerSeparation(bool* separationTriggered, unsigned long* separationStartTime) {
+void triggerSeparation(bool* separationTriggered) {
     
     // Fire pyro channels
-    digitalWrite(PYRO1_FIRE, HIGH);
     digitalWrite(PYRO2_FIRE, HIGH);
     
     // Start separation timer
-    *separationStartTime = millis();
+    unsigned long separationStartTime = millis();
     *separationTriggered = true;
+
+    Serial.println("Separation triggered!");
 
     // Play alert tone for separation
     playAlertTone(3000, 4000); // Play tone at 3000 Hz for 500 ms
 
-    if (*separationTriggered && 
-        (millis() - *separationStartTime >= SEPARATION_DURATION)) {
-        digitalWrite(PYRO1_FIRE, LOW);
+    if (*separationTriggered && (millis() - separationStartTime >= SEPARATION_DURATION)) {
         digitalWrite(PYRO2_FIRE, LOW);
-        *separationTriggered = false;
         
         Serial.println("Separation sequence completed");
     }
@@ -122,6 +119,28 @@ void triggerSeparation(bool* separationTriggered, unsigned long* separationStart
     }
 
     
-    Serial.println("Separation triggered!");
+}
+
+void triggerLaunch(bool* launchTriggered) {
+    // Fire pyro channel 1
+    digitalWrite(PYRO1_FIRE, HIGH);
+    
+    // Start launch timer
+    unsigned long launchStartTime = millis();
+    *launchTriggered = true;
+    
+    Serial.println("Launch triggered!");
+    
+    // Play alert tone for launch
+    playAlertTone(4000, 4000); // Play tone at 4000 Hz for 500 ms
+    
+    if (*launchTriggered && (millis() - launchStartTime >= SEPARATION_DURATION)) {
+        digitalWrite(PYRO1_FIRE, LOW);
+        
+        Serial.println("Launch sequence completed");
+    }
+    else {
+        Serial.println("Launch sequence in progress");
+    }
 }
 
