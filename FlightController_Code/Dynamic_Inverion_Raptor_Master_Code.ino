@@ -225,6 +225,7 @@ void updateData() { //updates all data
 }
 
 void sendData() {
+  
   char message[64]; // Buffer for data
 
   // Extract orientation data 
