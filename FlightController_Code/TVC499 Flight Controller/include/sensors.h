@@ -13,34 +13,30 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>
+#include <Adafruit_BNO08x.h>
 #include <Adafruit_BMP3XX.h>
-#include <Adafruit_BLE_UART.h>
 #include <utility/imumaths.h>
 
 // Constants
-#define REF_PRESSURE_HPA 700  // Default reference pressure in hPa
+#define REF_PRESSURE_HPA 0  // Default reference pressure in hPa
+
+
 
 /**
  * @brief Initialize IMU and altimeter sensors
- * @param bno Pointer to BNO055 sensor object
+ * @param bno Pointer to BNO085 sensor object
  * @param bmp Pointer to BMP3XX sensor object
  * @return True if initialization successful, false otherwise
  */
-bool initializeSensors(Adafruit_BNO055* bno, Adafruit_BMP3XX* bmp);
+bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp);
 
 /**
- * @brief Get orientation, gyro, acceleration, and gravity data from IMU
- * @param bno Pointer to BNO055 sensor object
- * @param gyroRates Array to store gyroscope rates [x,y,z]
- * @param gyroOffsets Array to store gyroscope offsets [x,y,z]
- * param localAngles Array to store local orientation angles [x,y,z]
- * param linearAccel Array to store linear acceleration [x,y,z]
- * param accelData Array to store accelerometer data [x,y,z]
- * param gravData Array to store gravity data [x,y,z]
- * @param dt Time delta since last reading (seconds)
+ * @brief Get gyroscope data from IMU with offset compensation
+ * @param bno Pointer to BNO085 sensor object
+ * @param gyroRates Output array for gyroscope rates [x,y,z]
+ * @param gyroOffsets Input array containing gyroscope offsets [x,y,z]
  */
-void updateIMU(Adafruit_BNO055* bno, double gyroRates[3], double gyroOffsets[3]);
+void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets);
 
 /**
  * @brief Get altitude and pressure data from altimeter
@@ -60,21 +56,20 @@ void returnData(sensors_event_t* event, double data[3]);
 
 /**
  * @brief Reset and calibrate all sensors
- * @param bno Pointer to BNO055 sensor object
+ * @param bno Pointer to BNO085 sensor object
  * @param bmp Pointer to BMP3XX sensor object
  * @param altData Array to store altitude data
  * @param refPressure Pointer to reference pressure value
  * @param gyroOffsets Array to store gyroscope offsets [x,y,z]
  */
-void resetSensors(Adafruit_BNO055* bno, Adafruit_BMP3XX* bmp, double altData[3], float* refPressure, double gyroOffsets[3]);
-
+void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double altData[3], float* refPressure, double gyroOffsets[3]);
 
 /**
  * @brief IMU zeroing function to reset gyro data
- * @param bno Pointer to BNO055 sensor object
+ * @param bno Pointer to BNO085 sensor object
  * @param gyroOffsets Array to store gyroscope offsets [x,y,z]
  */
-void zeroIMU(Adafruit_BNO055* bno, double gyroOffsets[3]);
+void zeroIMU(Adafruit_BNO08x* bno, double gyroOffsets[3]);
 
 /**
  * @brief Set reference pressure for altitude calculation

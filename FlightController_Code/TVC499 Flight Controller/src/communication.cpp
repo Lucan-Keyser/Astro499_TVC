@@ -68,7 +68,7 @@ void checkForCommands(RH_RF95* rf95, String* command) {
     //end timer
     unsigned long endTime = micros();
     double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
-    printf("dt_LoRa_com_check: %f\n", dt); // Print time delta
+    //printf("dt_LoRa_com_check: %f\n", dt); // Print time delta
 }
 
 void readSerial(String* command, bool* separationTriggered, bool* launchTriggered) { 
