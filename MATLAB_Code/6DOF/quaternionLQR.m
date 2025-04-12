@@ -5,10 +5,10 @@ A = [zeros(3,3), 0.5*I;
     zeros(3,3), zeros(3,3)];
 B = [zeros(3,3); I^-1];
 
-%we care about position a little more that velocity
+%we care about position a little more than velocity
 Q = diag([100,100,100,1,1,1]); %[qe1, qe2, qe3, w1, w2, w3]
 R = diag([1,1,1]);%equal control cost
-K = lqr(A,B, Q, R); %find K
+K = lqr(A, B, Q, R); %find K
 
 init = [0, 0.5, 0.5]; %orientation (of flight comp. guess)
 dt = 0.01;
