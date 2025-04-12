@@ -9,8 +9,9 @@
 #include "../include/sensors.h"
 
 // Global variables
-double quatAngles[3] = {0.0, 0.0, 0.0}; // yaw, pitch, roll angles
 double gyroRates[3] = {0.0, 0.0, 0.0}; // Current gyro rates
+
+
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
 bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
@@ -62,16 +63,18 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
     // Record start time
     unsigned long startTime = micros();
     unsigned long mathtime = micros(); // Initialize current time
-    
+     
     sh2_SensorValue_t sensorValue;
 
     if (bno->getSensorEvent(&sensorValue)) {
             // Process calibrated gyroscope data
             if (sensorValue.sensorId == SH2_GYROSCOPE_CALIBRATED) {
                 // Calibrated gyroscope data in rad/s
-                gyroRates[0] = sensorValue.un.gyroscope.x;
-                gyroRates[1] = sensorValue.un.gyroscope.y;
-                gyroRates[2] = sensorValue.un.gyroscope.z;
+                // Apply coordinate transform (roll = -x, pitch = y, yaw = -z) based on imu to rocket frame 
+                //NASA standard (x = roll, y = pitch, z = yaw, +x = up out of nose cone, +y = right, +z = toward viewer)
+                gyroRates[0] = -sensorValue.un.gyroscope.x; // Roll (x-axis) in rad/s
+                gyroRates[1] = sensorValue.un.gyroscope.y; // Pitch (y-axis) in rad/s
+                gyroRates[2] = -sensorValue.un.gyroscope.z; // Yaw (z-axis) in rad/s
                 
             }
         }
@@ -81,24 +84,18 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
     double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
     //Serial.printf("dt_updateIMU: %f\n", dt); // Print time delta
         
-    // Apply coordinate transform (roll = -x, pitch = y, yaw = -z) based on 85 to rocket frame 
-    //NASA standard (x = roll, y = pitch, z = yaw, +x = up out of nose cone, +y = right, +z = toward viewer)
-    double transformedRates[3] = {
-        -gyroRates[0], // Roll (negative x)
-        gyroRates[1],  // Pitch (y)
-        -gyroRates[2]  // Yaw (negative z)
-    };
+
 
     // find magnitude of the transformed rates (sqrt(x^2 + y^2 + z^2)), units are rads/sec
     // this is used to normalize the quaternion rotation
-    double magnitude = sqrt(transformedRates[0]*transformedRates[0] + transformedRates[1]*transformedRates[1] + transformedRates[2]*transformedRates[2]);
+    double magnitude = sqrt(gyroRates[0]*gyroRates[0] + gyroRates[1]*gyroRates[1] + gyroRates[2]*gyroRates[2]);
 
     //identity quaternion for initialization, why? because we are going to multiply it by the rotation quaternion
     // this is the quaternion that represents no rotation, so we start with it and then apply the rotation quaternion to it
-    double orientation_w = 1.0;
-    double orientation_x = 0.0;
-    double orientation_y = 0.0;
-    double orientation_z = 0.0;
+    double quant_w = 1.0;
+    double quant_x = 0.0;
+    double quant_y = 0.0;
+    double quant_z = 0.0;
 
     if (magnitude > 0.0001) { //avoid division by zero
 
@@ -111,11 +108,11 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
         
         //normalize the rotation quaternion, getting our unit vector
         double rotation_w = cosHalfAngle; // w component of the quaternion (scalar part) simple cos(theta/2)
-        double rotation_x = sinHalfAngle * transformedRates[0] / magnitude; // x component of the quaternion (vector part) sin(theta/2)*u_x
+        double rotation_x = sinHalfAngle * gyroRates[0] / magnitude; // x component of the quaternion (vector part) sin(theta/2)*u_x
         // u_x is the x component of the transformed rates, we divide by the magnitude to normalize it (make it unit vector)
-        // the units on this look like rads/sec (units for transformedRates) / rads/sec (units for magnitude) = 1 
-        double rotation_y = sinHalfAngle * transformedRates[1] / magnitude; // y component of the quaternion (vector part) sin(theta/2)*u_y
-        double rotation_z = sinHalfAngle * transformedRates[2] / magnitude; // z component of the quaternion (vector part) sin(theta/2)*u_z
+        // the units on this look like rads/sec (units for gyro rates) / rads/sec (units for magnitude) = 1 
+        double rotation_y = sinHalfAngle * gyroRates[1] / magnitude; // y component of the quaternion (vector part) sin(theta/2)*u_y
+        double rotation_z = sinHalfAngle * gyroRates[2] / magnitude; // z component of the quaternion (vector part) sin(theta/2)*u_z
 
         // A quaternion q = (w, x, y, z) consists of:
         //  A scalar (real) part w
@@ -143,25 +140,25 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
         // We multiply (not add) quaternions because rotation is non-linear.
         // The specific pattern of positive and negative signs in the multiplication
         // formula directly comes from these cyclic and anti-cyclic relationships.
-        double new_w = orientation_w * rotation_w - orientation_x * rotation_x - orientation_y * rotation_y - orientation_z * rotation_z;
-        double new_x = orientation_w * rotation_x + orientation_x * rotation_w + orientation_y * rotation_z - orientation_z * rotation_y;
-        double new_y = orientation_w * rotation_y - orientation_x * rotation_z + orientation_y * rotation_w + orientation_z * rotation_x;
-        double new_z = orientation_w * rotation_z + orientation_x * rotation_y - orientation_y * rotation_x + orientation_z * rotation_w;
+        double new_w = quant_w * rotation_w - quant_x * rotation_x - quant_y * rotation_y - quant_z * rotation_z;
+        double new_x = quant_w * rotation_x + quant_x * rotation_w + quant_y * rotation_z - quant_z * rotation_y;
+        double new_y = quant_w * rotation_y - quant_x * rotation_z + quant_y * rotation_w + quant_z * rotation_x;
+        double new_z = quant_w * rotation_z + quant_x * rotation_y - quant_y * rotation_x + quant_z * rotation_w;
         
         //update orientation with the new values
-        orientation_w = new_w;
-        orientation_x = new_x;
-        orientation_y = new_y;
-        orientation_z = new_z;
+        quant_w = new_w;
+        quant_x = new_x;
+        quant_y = new_y;
+        quant_z = new_z;
         
         // Normalize the quaternion (ensure unit length)
-        double orient_magnitude = sqrt(orientation_w * orientation_w + orientation_x * orientation_x + orientation_y * orientation_y + orientation_z * orientation_z);
+        double orient_magnitude = sqrt(quant_w * quant_w + quant_x * quant_x + quant_y * quant_y + quant_z * quant_z);
         
         if (orient_magnitude > 0.0001) {
-            orientation_w /= orient_magnitude;
-            orientation_x /= orient_magnitude;
-            orientation_y /= orient_magnitude;
-            orientation_z /= orient_magnitude;
+            quant_w /= orient_magnitude;
+            quant_x /= orient_magnitude;
+            quant_y /= orient_magnitude;
+            quant_z /= orient_magnitude;
         }
     }
 
