@@ -10,7 +10,7 @@ Q = diag([100,100,100,1,1,1]); %[qe1, qe2, qe3, w1, w2, w3]
 R = diag([1,1,1]);%equal control cost
 K = lqr(A, B, Q, R); %find K
 
-init = [0, 0.5, 0.5]; %orientation (of flight comp. guess)
+init = [0, 0.5, 0]; %orientation (of flight comp. guess)
 dt = 0.01;
 w0 = [0, 0, 0]; %body angular rates
 %lqr referenced: 
