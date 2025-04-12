@@ -9,6 +9,7 @@
 
 #include "../include/communication.h"
 #include "../include/hardware.h"
+#include "../include/config.h"
 
 bool initializeCommunication(RH_RF95* rf95, unsigned long* lastTelemetryTime) {
     // Initialize LoRa radio
@@ -94,7 +95,7 @@ void readSerial(String* command, bool* separationTriggered, bool* launchTriggere
     }
 }
 
-void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], PWMServo* yawServo, PWMServo* pitchServo) {
+void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], PWMServo* yawServo, PWMServo* pitchServo, bool ) {
     // Create buffer for message
     char message[60]; 
 

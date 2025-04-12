@@ -8,6 +8,7 @@
 */
 
 #include "../include/hardware.h"
+#include "../include/config.h"
 
 void playAlertTone(int frequency, int duration) {
     unsigned long period = 1000000 / frequency; // Period in microseconds
@@ -62,32 +63,13 @@ void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTrigg
 
 bool checkPyroContinuity() {
     // Check continuity of pyro channels 
-    pinMode(PYRO1_CONTINUITY, INPUT_PULLUP);
-    pinMode(PYRO2_CONTINUITY, INPUT_PULLUP);
-    
-    bool continuity1 = digitalRead(PYRO1_CONTINUITY) == LOW;
-    bool continuity2 = digitalRead(PYRO2_CONTINUITY) == LOW;
-    
-    if (continuity1) {
-        // Play special tone for continuity detection on PYRO1
-        for (int i = 0; i < 5; i++) {
-            playAlertTone(2000, 500); // Play tone at 3000 Hz 
-            delay(200); // Delay between tones
-        }
+    int pyro1Value = analogRead(A11); // Read analog value from pyro 1 continuity pin
+    int pyro2Value = analogRead(A12); // Read analog value from pyro 2 continuity pin
 
-        Serial.println("Continuity detected on PYRO1!");
-
+    // Check if both pyro channels have continuity
+    if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 / 1023) && pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
+        Serial.println("Continuity detected on both pyro channels.");
         return true;
-    }
-    if (continuity2) {
-        // Play special tone for continuity detection on PYRO2
-        for (int i = 0; i < 5; i++) {
-            playAlertTone(4000, 500); // Play tone at 4000 Hz 
-            delay(200); // Delay between tones
-        }
-        Serial.println("Continuity detected on PYRO2!");
-        return true;
-
     } else {
         Serial.println("No continuity detected.");
 
