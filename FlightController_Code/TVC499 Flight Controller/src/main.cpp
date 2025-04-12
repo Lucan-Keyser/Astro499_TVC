@@ -7,31 +7,16 @@
 
 // Builtin LED for basic testing
 #define LED_BUILTIN 13
-#define BLINK_INTERVAL 500  // Blink every 500ms
 
-#define PYRO1_FIRE 28
-#define PYRO2_FIRE 29
 
 // Global objects and variables
 Adafruit_BNO08x bno;  // Updated to use BNO08x instead of BNO055
 Adafruit_BMP3XX bmp;  // BMP390 altimeter
 
-// Sensor data arrays
-double gyroRates[3] = {0.0, 0.0, 0.0};    // Current gyro rates
-double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
+double quants[4] = {1.0, 0.0, 0.0, 0.0}; // Quaternion data
+double gyroRates[3] = {0.0, 0.0, 0.0}; // Gyroscope rates
 
 
-// Define the analog pins
-const int analogPin1 = 25;  // A11 on Teensy
-const int analogPin2 = 26;  // A12 on Teensy
-
-// Variables to store the analog values
-int analogValue1 = 0;
-int analogValue2 = 0;
-
-// Variables to store the voltage values
-float voltage1 = 0.0;
-float voltage2 = 0.0;
 
 void setup() {
     // Initialize serial communication
@@ -39,43 +24,30 @@ void setup() {
     Serial5.begin(115200);
     delay(2000);  // Wait for serial to initialize
 
+    // Initialize imu and altimeter
+    if (!initializeSensors(&bno, &bmp)) {
+        Serial.println("Sensor initialization failed!");
+        while (1);  // Halt execution if sensors fail to initialize
+    }
+
+
         
-    Serial.println("Teensy Analog Voltage Reader");
-    Serial.println("Reading from pins 25(A11) and 26(A12)");
-
-      // Initialize Pyro Pins
-    pinMode(PYRO1_FIRE, OUTPUT);
-    pinMode(PYRO2_FIRE, OUTPUT);
-    digitalWrite(PYRO1_FIRE, LOW);
-    digitalWrite(PYRO2_FIRE, LOW);
-
 }
 
 void loop(){
-    //updateIMU(&bno, gyroRates, gyroOffsets);  // Update IMU data
 
-      // Read the analog values
-    analogValue1 = analogRead(analogPin1);
-    analogValue2 = analogRead(analogPin2);
+  updateIMU(&bno, gyroRates, quants); // Update IMU data
 
-    // Convert analog values to voltage (Teensy default reference is 3.3V)
-    // Analog reading is 10-bit (0-1023)
-    voltage1 = analogValue1 * (3.3 / 1023.0);
-    voltage2 = analogValue2 * (3.3 / 1023.0);
+  // Print quaternion data
+  Serial.printf("Quaternion: w=%.6f, x=%.6f, y=%.6f, z=%.6f\n", quants[0], quants[1], quants[2], quants[3]);
 
-    // Print the results to Serial monitor
-    Serial.print("Pin 25(A11): ");
-    Serial.print(analogValue1);
-    Serial.print(" raw, ");
-    Serial.print(voltage1);
-    Serial.print("V | Pin 26(A12): ");
-    Serial.print(analogValue2);
-    Serial.print(" raw, ");
-    Serial.print(voltage2);
-    Serial.println("V");
+  //convert to euler angles
+  double roll = atan2(2*(quants[0]*quants[1] + quants[2]*quants[3]), 1 - 2*(quants[1]*quants[1] + quants[2]*quants[2]));
+  double pitch = asin(2*(quants[0]*quants[2] - quants[3]*quants[1]));
+  double yaw = atan2(2*(quants[0]*quants[3] + quants[1]*quants[2]), 1 - 2*(quants[2]*quants[2] + quants[3]*quants[3]));
+  Serial.printf("Euler angles: roll=%.6f, pitch=%.6f, yaw=%.6f\n", roll, pitch, yaw);
 
-    // Small delay to make the output readable
-    delay(500);
+
 
 
 

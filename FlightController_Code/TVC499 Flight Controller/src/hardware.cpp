@@ -63,11 +63,11 @@ void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTrigg
 
 bool checkPyroContinuity() {
     // Check continuity of pyro channels 
-    int pyro1Value = analogRead(PYRO1_CONT); // Read analog value from pyro 1 continuity pin
-    int pyro2Value = analogRead(PYRO2_CONT); // Read analog value from pyro 2 continuity pin
+    int pyro1Value = analogRead(A11); // Read analog value from pyro 1 continuity pin
+    int pyro2Value = analogRead(A12); // Read analog value from pyro 2 continuity pin
 
     // Check if both pyro channels have continuity
-    if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 /1023) && pyro2Value > CONTINUITY_THRESHOLD * (3.3 /1023)) {
+    if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 / 1023) && pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
         Serial.println("Continuity detected on both pyro channels.");
         return true;
     } else {

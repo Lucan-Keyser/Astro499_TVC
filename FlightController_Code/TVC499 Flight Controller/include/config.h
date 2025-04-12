@@ -4,9 +4,9 @@
 // Pyro Pins
 #define PYRO1_FIRE 28
 #define PYRO2_FIRE 29
-#define PYRO1_CONT = A11;  // continuity pyro 1
-#define PYRO2_CONT = A12;  // continuity pyro 2
-#define CONTINUITY_THRESHOLD = 2
+#define PYRO1_CONT A11  // continuity pyro 1
+#define PYRO2_CONT A12  // continuity pyro 2
+#define CONTINUITY_THRESHOLD 2
 
 // Flight Parameters
 #define THRUST_TIME 3000         // Thrust duration in milliseconds

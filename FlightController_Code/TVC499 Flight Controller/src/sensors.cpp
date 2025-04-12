@@ -9,10 +9,6 @@
 #include "../include/sensors.h"
 
 // Global variables
-double gyroRates[3] = {0.0, 0.0, 0.0}; // Current gyro rates
-
-
-double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
 bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
     bool success = true;
@@ -59,7 +55,7 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
     return success;
 }
 
-void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
+void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quants) {
     // Record start time
     unsigned long startTime = micros();
     unsigned long mathtime = micros(); // Initialize current time
@@ -92,10 +88,10 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
 
     //identity quaternion for initialization, why? because we are going to multiply it by the rotation quaternion
     // this is the quaternion that represents no rotation, so we start with it and then apply the rotation quaternion to it
-    double quant_w = 1.0;
-    double quant_x = 0.0;
-    double quant_y = 0.0;
-    double quant_z = 0.0;
+    double quant_w = quants[0];
+    double quant_x = quants[1];
+    double quant_y = quants[2];
+    double quant_z = quants[3];
 
     if (magnitude > 0.0001) { //avoid division by zero
 
@@ -162,6 +158,10 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* gyroOffsets) {
         }
     }
 
+    quants[0] = quant_w;
+    quants[1] = quant_x;
+    quants[2] = quant_y;
+    quants[3] = quant_z;
 
     unsigned long endMathTime = micros();
     double mathTime = (endMathTime - mathtime) / 1000000.0; // Convert microseconds to seconds
