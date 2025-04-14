@@ -17,6 +17,7 @@
 #include <Adafruit_BMP3XX.h>
 #include <utility/imumaths.h>
 
+
 // Constants
 #define REF_PRESSURE_HPA 0  // Default reference pressure in hPa
 
@@ -34,9 +35,9 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp);
  * @brief Get gyroscope data from IMU with offset compensation
  * @param bno Pointer to BNO085 sensor object
  * @param gyroRates Output array for gyroscope rates [x,y,z]
- * @param quants Output array for quaternion data [w,x,y,z]
+ * @param gyroOffsets Input array containing gyroscope offsets [x,y,z]
  */
-void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quants);
+void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double dt);
 
 /**
  * @brief Get altitude and pressure data from altimeter

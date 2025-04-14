@@ -7,8 +7,16 @@
 */
 
 #include "../include/sensors.h"
+#include <BasicLinearAlgebra.h> // Include the library for BLA
+
+using namespace BLA;
+
 
 // Global variables
+
+
+
+double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
 bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
     bool success = true;
@@ -55,107 +63,60 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
     return success;
 }
 
-void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quants) {
+void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double dt) {
     // Record start time
-    unsigned long startTime = micros();
-    
-    // Get sensor data from the BNO085
+     
     sh2_SensorValue_t sensorValue;
-    
+
     if (bno->getSensorEvent(&sensorValue)) {
-        // Only process if we have gyroscope data
-        if (sensorValue.sensorId == SH2_GYROSCOPE_CALIBRATED) {
-            // Apply coordinate transform (roll = -x, pitch = y, yaw = -z)
-            double transformedRates[3] = {
-                -sensorValue.un.gyroscope.x,  // Roll (negative x)
-                sensorValue.un.gyroscope.y,   // Pitch (y)
-                -sensorValue.un.gyroscope.z   // Yaw (negative z)
-            };
-            
-            // Copy to gyroRates for use elsewhere in the code
-            gyroRates[0] = transformedRates[0];
-            gyroRates[1] = transformedRates[1];
-            gyroRates[2] = transformedRates[2];
-            
-            // Calculate time delta
-            static unsigned long lastTime = micros();
-            double deltaTime = (micros() - lastTime) / 1000000.0; // Convert to seconds
-            lastTime = micros();
-            
-            // Create quaternion from current orientation
-            imu::Quaternion currentQuat(
-                quants[0],  // w
-                quants[1],  // x
-                quants[2],  // y
-                quants[3]   // z
-            );
-            
-            // Calculate magnitude of angular velocity
-            double magnitude = sqrt(
-                transformedRates[0] * transformedRates[0] + 
-                transformedRates[1] * transformedRates[1] + 
-                transformedRates[2] * transformedRates[2]
-            );
-            
-            if (magnitude > 0.0001) {  // Avoid division by zero
-                // Create rotation quaternion
-                double halfAngle = magnitude * deltaTime * 0.5;
-                double sinHalfAngle = sin(halfAngle);
+            // Process calibrated gyroscope data
+            if (sensorValue.sensorId == SH2_GYROSCOPE_CALIBRATED) {
+                // Calibrated gyroscope data in rad/s
+                // Apply coordinate transform (roll = -x, pitch = y, yaw = -z) based on imu to rocket frame 
+                //NASA standard (x = roll, y = pitch, z = yaw, +x = up out of nose cone, +y = right, +z = toward viewer)
+                gyroRates[0] = -sensorValue.un.gyroscope.x; // Roll (x-axis) in rad/s
+                gyroRates[1] = sensorValue.un.gyroscope.y; // Pitch (y-axis) in rad/s
+                gyroRates[2] = -sensorValue.un.gyroscope.z; // Yaw (z-axis) in rad/s
                 
-                imu::Quaternion rotationQuat(
-                    cos(halfAngle),  // w
-                    sinHalfAngle * transformedRates[0] / magnitude,  // x (roll)
-                    sinHalfAngle * transformedRates[1] / magnitude,  // y (pitch)
-                    sinHalfAngle * transformedRates[2] / magnitude   // z (yaw)
-                );
-                
-                // Apply rotation: multiply current quaternion by rotation quaternion
-                imu::Quaternion newQuat = currentQuat * rotationQuat;
-                
-                // Normalize the result
-                newQuat.normalize();
-                
-                // Update quaternion array
-                quants[0] = newQuat.w();
-                quants[1] = newQuat.x();
-                quants[2] = newQuat.y();
-                quants[3] = newQuat.z();
             }
-            
-            // Convert quaternion to Euler angles (in radians) using atan2 approach
-            double roll = atan2(2*(quants[0]*quants[1] + quants[2]*quants[3]), 
-                               1 - 2*(quants[1]*quants[1] + quants[2]*quants[2]));
-            
-            double pitch = asin(2*(quants[0]*quants[2] - quants[3]*quants[1]));
-            
-            double yaw = atan2(2*(quants[0]*quants[3] + quants[1]*quants[2]), 
-                              1 - 2*(quants[2]*quants[2] + quants[3]*quants[3]));
-            
-            // Convert to degrees for display
-            double rollDeg = roll * RAD_TO_DEG;
-            double pitchDeg = pitch * RAD_TO_DEG;
-            double yawDeg = yaw * RAD_TO_DEG;
-            
-            // Print quaternion and Euler angles
-            Serial.printf("Quaternion: w=%.4f, x=%.4f, y=%.4f, z=%.4f\n", 
-                         quants[0], quants[1], quants[2], quants[3]);
-            Serial.printf("Euler angles (deg): Roll=%.2f, Pitch=%.2f, Yaw=%.2f\n", 
-                         rollDeg, pitchDeg, yawDeg);
         }
+
+    // Calculate time delta
+    
+    double q0 = quaternions[0], q1 = quaternions[1], q2 = quaternions[2], q3 = quaternions[3];
+    double w1 = gyroRates[0], w2 = gyroRates[1], w3 = gyroRates[2];
+
+    double dq0 = 0.5 * (-w1 * q1 - w2 * q2 - w3 * q3);
+    double dq1 = 0.5 * ( w1 * q0 + w3 * q2 - w2 * q3);
+    double dq2 = 0.5 * ( w2 * q0 - w3 * q1 + w1 * q3);
+    double dq3 = 0.5 * ( w3 * q0 + w2 * q1 - w1 * q2);
+
+    double q0_new = q0 + dq0 * dt;
+    double q1_new = q1 + dq1 * dt;
+    double q2_new = q2 + dq2 * dt;
+    double q3_new = q3 + dq3 * dt;
+
+    // Normalize quaternion
+    double norm = sqrt(q0_new * q0_new + q1_new * q1_new + q2_new * q2_new + q3_new * q3_new);
+    if (norm > 0) {
+        quaternions[0] = q0_new / norm;
+        quaternions[1] = q1_new / norm;
+        quaternions[2] = q2_new / norm;
+        quaternions[3] = q3_new / norm;
+    } else {
+        Serial.println("Quaternion normalization failed!");
     }
-    
-    // Calculate execution time for performance monitoring
-    unsigned long endTime = micros();
-    double processingTime = (endTime - startTime) / 1000000.0;
-    
-    // Optional: track average processing time
-    static double totalTime = 0.0;
-    static int numSamples = 0;
-    numSamples++;
-    totalTime += processingTime;
-    double avgTime = totalTime / numSamples;
-    
-    Serial.printf("IMU update time: %.6f s, Avg: %.6f s\n", processingTime, avgTime);
+
+    //roll
+    eulerAngles[0] = RAD_TO_DEG * (atan2(2 * (quaternions[0] * quaternions[1] + quaternions[2] * quaternions[3]),
+                      1 - 2 * (quaternions[1] * quaternions[1] + quaternions[2] * quaternions[2])));
+    //pitch
+    eulerAngles[1] = RAD_TO_DEG * asin(2 * (quaternions[0] * quaternions[2] - quaternions[3] * quaternions[1]));
+    //yaw
+    eulerAngles[2] = RAD_TO_DEG * (atan2(2 * (quaternions[0] * quaternions[3] + quaternions[1] * quaternions[2]),
+                     1 - 2 * (quaternions[2] * quaternions[2] + quaternions[3] * quaternions[3]))); 
+
+
 }
 
 bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float refPressure) {

@@ -1,46 +1,80 @@
 #include <Arduino.h>
 #include <Wire.h>
+#include <FastLED.h>
+#include <PWMServo.h>
 #include "../include/sensors.h"
+#include "../include/communication.h"
+#include "../include/hardware.h"
+#include "../include/sensors.h"
+#include "../include/control.h"
+
+// Builtin LED for basic testing
+#define LED_BUILTIN 13
+#define BLINK_INTERVAL 500  // Blink every 500ms
+
+#define PYRO1_FIRE 28
+#define PYRO2_FIRE 29
 
 // Global objects and variables
-Adafruit_BNO08x bno;  // BNO085 IMU
+Adafruit_BNO08x bno;  // Updated to use BNO08x instead of BNO055
+Adafruit_BMP3XX bmp;  // BMP390 altimeter
+PWMServo yawServo;  // Yaw servo
+PWMServo pitchServo;  // Pitch servo
+int yawServoPin = 2;  // Pin for yaw servo
+int pitchServoPin = 3;  // Pin for pitch servo
 
-// Data arrays
-double quants[4] = {1.0, 0.0, 0.0, 0.0};  // Quaternion [w, x, y, z]
-double gyroRates[3] = {0.0, 0.0, 0.0};    // Gyro rates [roll, pitch, yaw]
-double eulerAngles[3] = {0.0, 0.0, 0.0};  // Euler angles [roll, pitch, yaw]
+// Sensor data arrays
+double gyroRates[3] = {0.0, 0.0, 0.0}; //in radians/sec
+double quaternions[4] = {1, 0, 0, 0}; //Quaterinon vector
+double eulerAngles[3] = {0.0, 0.0, 0.0}; // Yaw, Pitch, Roll in degrees
+double dt = 0; 
+double prevTime = 0;// Current gyro rates
+// double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
 
+
+// Define the analog pins
+const int analogPin1 = 25;  // A11 on Teensy
+const int analogPin2 = 26;  // A12 on Teensy
+
+// Variables to store the analog values
+int analogValue1 = 0;
+int analogValue2 = 0;
+
+// Variables to store the voltage values
+float voltage1 = 0.0;
+float voltage2 = 0.0;
 
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
-    delay(2000);  // Wait for serial to initialize
-    
-    Serial.println("Quaternion and Euler Angle Test");
+    Serial5.begin(115200);
+    // delay(2000);  // Wait for serial to initialize
 
-    // Initialize IMU
-    Wire.begin();
-    Wire.setClock(400000); // Set to 400kHz I2C speed
-    
-    if (!bno.begin_I2C(0x4A, &Wire)) {
-        Serial.println("Failed to find BNO085 sensor");
-        while (1) { delay(10); }
-    }
-    
-    // Enable the gyroscope reports
-    if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED)) {
-        Serial.println("Could not enable gyroscope reports");
-        while (1) { delay(10); }
-    }
-    
-    Serial.println("BNO085 initialized successfully");
-    Serial.println("Keep the device still for 3 seconds to calibrate");
-    delay(3000);
+    prevTime = micros();
+    // Serial.println("Teensy Analog Voltage Reader");
+    // Serial.println("Reading from pins 25(A11) and 26(A12)");
+
+    //   // Initialize Pyro Pins
+    // pinMode(PYRO1_FIRE, OUTPUT);
+    // pinMode(PYRO2_FIRE, OUTPUT);
+    // digitalWrite(PYRO1_FIRE, LOW);
+    // digitalWrite(PYRO2_FIRE, LOW);
+    yawServo.attach(yawServoPin);  // Attach yaw servo to pin
+    pitchServo.attach(pitchServoPin);  // Attach pitch servo to pin
+    initializeSensors(&bno, &bmp);  // Initialize sensors
 }
 
 void loop() {
-    // Update IMU data and quaternion
-    updateIMU(&bno, gyroRates, quants);
+  // Calculate time delta
+  double currentTime = micros();
+  dt = (currentTime - prevTime) / 1000000.0; // Convert microseconds to seconds
+  prevTime = currentTime;
 
-
+  // Update IMU data
+  updateIMU(&bno, gyroRates, quaternions, eulerAngles, dt);
+  control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
+  
+  // Serial.printf("dt: %.6f\n", dt);
+  
+  // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
 }
