@@ -17,6 +17,7 @@
 
 // Global objects and variables
 Adafruit_BNO08x bno;  // Updated to use BNO08x instead of BNO055
+sh2_SensorValue_t sensorValue;
 Adafruit_BMP3XX bmp;  // BMP390 altimeter
 PWMServo yawServo;  // Yaw servo
 PWMServo pitchServo;  // Pitch servo
@@ -27,6 +28,7 @@ int pitchServoPin = 3;  // Pin for pitch servo
 double gyroRates[3] = {0.0, 0.0, 0.0}; //in radians/sec
 double quaternions[4] = {1, 0, 0, 0}; //Quaterinon vector
 double eulerAngles[3] = {0.0, 0.0, 0.0}; // Yaw, Pitch, Roll in degrees
+double accelerometer[3] = {0.0, 0.0, 0.0}; //accelerometer values, x,y,z
 double dt = 0; 
 double prevTime = 0;// Current gyro rates
 // double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
@@ -35,6 +37,7 @@ double prevTime = 0;// Current gyro rates
 // Define the analog pins
 const int analogPin1 = 25;  // A11 on Teensy
 const int analogPin2 = 26;  // A12 on Teensy
+
 
 // Variables to store the analog values
 int analogValue1 = 0;
@@ -61,7 +64,9 @@ void setup() {
     // digitalWrite(PYRO2_FIRE, LOW);
     yawServo.attach(yawServoPin);  // Attach yaw servo to pin
     pitchServo.attach(pitchServoPin);  // Attach pitch servo to pin
-    initializeSensors(&bno, &bmp);  // Initialize sensors
+    initializeSensors(&bno, &bmp);// Initialize sensors
+    initializeQuaternions(&bno, quaternions, accelerometer);  //one second
+    playAlertTone(1000, 2000);
 }
 
 void loop() {
@@ -71,10 +76,12 @@ void loop() {
   prevTime = currentTime;
 
   // Update IMU data
-  updateIMU(&bno, gyroRates, quaternions, eulerAngles, dt);
+  updateIMU(&bno, gyroRates, quaternions, eulerAngles, accelerometer, dt);
+  // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
+  
   control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
   
   // Serial.printf("dt: %.6f\n", dt);
-  
+  // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
   // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
 }

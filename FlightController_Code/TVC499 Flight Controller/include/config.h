@@ -16,13 +16,18 @@
 #define MAX_TILT_ANGLE 60        // Maximum tilt angle in degrees before abort
 
 // Control Parameters
-#define SERVO_RATIO 3
-#define SERVO_OFFSET_YAW -14
-#define SERVO_OFFSET_PITCH -11
-#define PID_P 1.5
-#define PID_I 0.2
-#define PID_D 1.73
-#define MAX_SERVO_ANGLE 7
+#define SERVO_RATIO 3.3 //Ratio of gimbal to servo angle
+#define SERVO_OFFSET_PITCH 0 //Pitch servo offset in degrees
+#define SERVO_OFFSET_YAW 0 //Yaw servo offset in degrees
+#define MAX_GIMBAL_ANGLE DEG_TO_RAD * 8
+#define MOMENT_OF_INERTIA 0.1 //Moment of inertia in kg*m^2
+#define MOMENT_ARM 0.49 //Moment arm in meters
+#define THRUST 15
+
+
+
+
+
 
 // LED Configuration
 #define NUM_LEDS 2

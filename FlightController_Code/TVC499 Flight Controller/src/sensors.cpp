@@ -7,14 +7,6 @@
 */
 
 #include "../include/sensors.h"
-#include <BasicLinearAlgebra.h> // Include the library for BLA
-
-using namespace BLA;
-
-
-// Global variables
-
-
 
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
@@ -23,7 +15,7 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
     
     // Initialize BNO085 IMU on Wire2
     Wire.begin();
-    Wire.setClock(400000); // Set to 400kHz I2C speed
+    Wire.setClock(400000); // Set to  400kHz I2C speed
 
 
     // In your initializeSensors function
@@ -58,16 +50,76 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
             Serial.println("Could not enable gyroscope reports");
             success = false;
         }
+        if (!bno->enableReport(SH2_ACCELEROMETER)){
+            Serial.println("Could not enable accelerometer reports");
+            success = false;
+        }
     }
     
     return success;
 }
 
-void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double dt) {
-    // Record start time
-     
+
+void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* accelerometer) {
+    //Initialize quaternion
     sh2_SensorValue_t sensorValue;
 
+    int n = 100;
+    double xSum = 0;
+    double ySum = 0;
+    double zSum = 0;
+
+    for (int i = 0 ; i < n; i++) {
+        if (bno->getSensorEvent(&sensorValue)) {
+            // Serial.println("lmao");
+            //get accelerometer data
+            if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
+                accelerometer[0] = sensorValue.un.accelerometer.x;
+                accelerometer[1] = -sensorValue.un.accelerometer.y;
+                accelerometer[2] = sensorValue.un.accelerometer.z;
+            }
+        }
+
+        xSum += accelerometer[0];
+        ySum += accelerometer[1];
+        zSum += accelerometer[2];
+
+        delay(10);
+    }
+    double xAvg = xSum/n;
+    double yAvg = ySum/n;
+    double zAvg = zSum/n;
+
+    double pitch = atan(zAvg/xAvg); //pitch angle on pad, tan^-1(z/x)
+    double yaw = -atan(yAvg/xAvg);//yaw angle on pad, -tan^-1(y/x)
+    double roll = 0;
+
+    // double pitch = RAD_TO_DEG*atan(accelerometer[2]/accelerometer[0]);
+    // double yaw = RAD_TO_DEG*atan(accelerometer[1]/accelerometer[0]);//pitch angle on pad, tan^-1(y/x)
+    // double roll = 0;
+
+    // Compute trigonometric functions
+    double cx = cos(roll * 0.5);
+    double sx = sin(roll * 0.5);
+    double cy = cos(pitch * 0.5);
+    double sy = sin(pitch * 0.5);
+    double cz = cos(yaw * 0.5);
+    double sz = sin(yaw * 0.5);
+    // Compute quaternion components
+    quaternions[0] = cx * cy * cz + sx * sy * sz;
+    quaternions[1]= sx * cy * cz - cx * sy * sz;
+    quaternions[2] = cx * sy * cz + sx * cy * sz;
+    quaternions[3] = cx * cy * sz - sx * sy * cz;
+
+    // Serial.printf("pitch: %.6f, yaw: %.6f\n", pitch, yaw);
+
+    
+}
+
+void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double dt) {
+    // Record start time
+    sh2_SensorValue_t sensorValue;
+    
     if (bno->getSensorEvent(&sensorValue)) {
             // Process calibrated gyroscope data
             if (sensorValue.sensorId == SH2_GYROSCOPE_CALIBRATED) {
@@ -81,6 +133,16 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, dou
             }
         }
 
+
+    if (bno->getSensorEvent(&sensorValue)) {
+        // Serial.println("lmao");
+        //get accelerometer data
+        if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
+            accelerometer[0] = sensorValue.un.accelerometer.x;
+            accelerometer[1] = -sensorValue.un.accelerometer.y;
+            accelerometer[2] = sensorValue.un.accelerometer.z;
+            }
+        }
     // Calculate time delta
     
     double q0 = quaternions[0], q1 = quaternions[1], q2 = quaternions[2], q3 = quaternions[3];

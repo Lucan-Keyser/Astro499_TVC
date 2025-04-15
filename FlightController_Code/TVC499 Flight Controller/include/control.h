@@ -6,7 +6,8 @@
 
 void control(double* quaternions, double* omega, PWMServo pitchServo, PWMServo yawServo);
 
-void moveServos (double* input, PWMServo pitchServo, PWMServo yawServo);
+void moveServos (double* gimbal, PWMServo pitchServo, PWMServo yawServo);
+
 
 
 

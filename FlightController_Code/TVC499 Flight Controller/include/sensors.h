@@ -37,7 +37,9 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp);
  * @param gyroRates Output array for gyroscope rates [x,y,z]
  * @param gyroOffsets Input array containing gyroscope offsets [x,y,z]
  */
-void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double dt);
+void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double dt);
+
+void initializeQuaternions(Adafruit_BNO08x* bno, double* quaternions, double* accelerometer);
 
 /**
  * @brief Get altitude and pressure data from altimeter

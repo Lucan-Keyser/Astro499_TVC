@@ -55,10 +55,10 @@ void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTrigg
     digitalWrite(PYRO1_FIRE, LOW);
     digitalWrite(PYRO2_FIRE, LOW);
     
-    // Set initial LED state
-    leds[0] = CRGB::Black;
-    leds[1] = CRGB::Black;
-    FastLED.show();
+    // Set initial LED state, not present on PCB
+//     leds[0] = CRGB::Black;
+//     leds[1] = CRGB::Black;
+//     FastLED.show();
 }
 
 bool checkPyroContinuity() {
