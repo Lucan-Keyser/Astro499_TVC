@@ -1,5 +1,6 @@
 #include "../include/control.h"
 #include "../include/config.h"
+#include "../include/logging.h"
 #include <BasicLinearAlgebra.h>
 #include <PWMServo.h>
 using namespace BLA;
@@ -9,6 +10,9 @@ Matrix<3, 6> K = {10.0000000000000,	0,	0,	1.01242283656583,	0,	0,
                     0,	10.0000000000000,	0,	0,	1.04880884817015,	0,
                     0,	0,	10.0000000000000,	0,	0,	1.04880884817015,};
 // K is the gain matrix for the LQR controller
+
+const int n = 10000;
+const int m = 10;
 
 
 
@@ -42,6 +46,25 @@ void moveServos (double* gimbal, PWMServo pitchServo, PWMServo yawServo) {
     // // Write the angles to the servos
     pitchServo.write(pitchAngle);
     yawServo.write(yawAngle);
+
+    double servos[2] = {pitchAngle, yawAngle};
+    logControlData(gimbal, servos);
    
+}
+
+void invertTest() {
+    Matrix<m,n> A;
+    Matrix<n,m> B;
+    for (int i = 0; i < m; i++){
+        for (int j = 0; j < n; j++) {
+            A(i,j) = random(20);
+        }
+    }
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < m; j++) {
+            B(i,j) = random(20);
+        }
+    }
+    Matrix<m,m> C = A*B;
 }
 

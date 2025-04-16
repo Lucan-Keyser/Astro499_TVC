@@ -7,6 +7,8 @@
 #include "../include/hardware.h"
 #include "../include/sensors.h"
 #include "../include/control.h"
+#include "../include/state.h"
+#include "../include/logging.h"
 
 // Builtin LED for basic testing
 #define LED_BUILTIN 13
@@ -21,6 +23,7 @@ sh2_SensorValue_t sensorValue;
 Adafruit_BMP3XX bmp;  // BMP390 altimeter
 PWMServo yawServo;  // Yaw servo
 PWMServo pitchServo;  // Pitch servo
+int STATE = 0;
 int yawServoPin = 2;  // Pin for yaw servo
 int pitchServoPin = 3;  // Pin for pitch servo
 
@@ -29,8 +32,10 @@ double gyroRates[3] = {0.0, 0.0, 0.0}; //in radians/sec
 double quaternions[4] = {1, 0, 0, 0}; //Quaterinon vector
 double eulerAngles[3] = {0.0, 0.0, 0.0}; // Yaw, Pitch, Roll in degrees
 double accelerometer[3] = {0.0, 0.0, 0.0}; //accelerometer values, x,y,z
+double refPressure = 1000; // Reference pressure in hPa
+double altData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude (m), pressure (PA), temperature]
 double dt = 0; 
-double prevTime = 0;// Current gyro rates
+double prevTime = 0;// Current previous loop time
 // double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
 
 
@@ -64,7 +69,7 @@ void setup() {
     // digitalWrite(PYRO2_FIRE, LOW);
     yawServo.attach(yawServoPin);  // Attach yaw servo to pin
     pitchServo.attach(pitchServoPin);  // Attach pitch servo to pin
-    initializeSensors(&bno, &bmp);// Initialize sensors
+    initializeSensors(&bno, &bmp, refPressure);// Initialize sensors
     initializeQuaternions(&bno, quaternions, accelerometer);  //one second
     playAlertTone(1000, 2000);
 }
@@ -77,11 +82,21 @@ void loop() {
 
   // Update IMU data
   updateIMU(&bno, gyroRates, quaternions, eulerAngles, accelerometer, dt);
-  // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
-  
+  updateAltimeter(&bmp, altData, refPressure);
+  //control attitude
+  stateMachine(STATE, accelerometer, eulerAngles, altData);
+
   control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
-  
-  // Serial.printf("dt: %.6f\n", dt);
+  logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, dt);
+  // sendToLog();
+
+
+   // Update altitude data
+
+  // Serial.print("Altitude: ");
+  // Serial.println(altData[0]); // Print altitude
+  // // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
+  Serial.printf("dt: %.6f\n", dt);
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
   // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
 }

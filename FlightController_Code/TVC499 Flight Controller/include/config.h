@@ -23,6 +23,16 @@
 #define MOMENT_OF_INERTIA 0.1 //Moment of inertia in kg*m^2
 #define MOMENT_ARM 0.49 //Moment arm in meters
 #define THRUST 15
+#define LAUNCH_ACCELERATION -15 //launch detection limit
+#define ABORT_CRITERIA 60 //how far we can pitch/yaw before aborting
+#define BURN_TIME 3250 //burn time in millis
+#define FREE_FALL_ACCEL 4// criteria for free fall acceleration, m/s^2.
+#define ALTIMETER_CALIBRATION_COUNT 100 // Number of samples for altimeter calibration
+#define ALTIMETER_CALIBRATION_DELAY 10 // Delay between altimeter calibration samples in milliseconds
+#define ALTITUDE_THRESHOLD 0.75 // Altitude threshold for apogee detection in meters
+#define APOGEE_DETECTION_INTERVAL 1000 // Time interval for apogee detection in milliseconds
+#define APOGEE_DETECTION_COUNT 10 // Number of samples for apogee detection
+#define APOGEE_DETECTION_DELAY 10 // Delay between apogee detection samples in milliseconds
 
 
 
@@ -53,6 +63,7 @@
 
 // Other Constants
 #define TELEMETRY_INTERVAL 50    // Send telemetry every 50ms
-#define REF_PRESSURE_HPA 700     // Default reference pressure in hPa
+
+
 
 #endif // CONFIG_H

@@ -8,7 +8,7 @@ void control(double* quaternions, double* omega, PWMServo pitchServo, PWMServo y
 
 void moveServos (double* gimbal, PWMServo pitchServo, PWMServo yawServo);
 
-
+void invertTest();
 
 
 #endif // CONTROL_H

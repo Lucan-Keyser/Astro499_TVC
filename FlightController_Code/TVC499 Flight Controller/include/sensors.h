@@ -29,7 +29,7 @@
  * @param bmp Pointer to BMP3XX sensor object
  * @return True if initialization successful, false otherwise
  */
-bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp);
+bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPressure);
 
 /**
  * @brief Get gyroscope data from IMU with offset compensation
@@ -48,7 +48,7 @@ void initializeQuaternions(Adafruit_BNO08x* bno, double* quaternions, double* ac
  * @param refPressure Reference pressure for altitude calculation
  * @return True if reading successful, false otherwise
  */
-bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float refPressure);
+bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], double& refPressure);
 
 /**
  * @brief Extract data from sensor event into data array

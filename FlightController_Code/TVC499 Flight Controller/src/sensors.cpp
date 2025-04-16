@@ -7,10 +7,15 @@
 */
 
 #include "../include/sensors.h"
+#include "../include/config.h"
+
 
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
-bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
+
+bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPressure) {
+    double tempAltData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude, pressure, temperature], just within this function
+    double sumPressure = 0.0; // Sum of pressure readings for calibration
     bool success = true;
     
     // Initialize BNO085 IMU on Wire2
@@ -33,9 +38,19 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp) {
     // Initialize BMP390 using Wire1
     if (!bmp->begin_I2C(0x77, &Wire1)) {
         Serial.println("Trying alternative BMP390 address...");
+        success = false;
     } else {
         Serial.println("BMP390 detected at address 0x77 on Wire1!");
     }
+
+    for (int i = 0; i < ALTIMETER_CALIBRATION_COUNT; i++) {
+        // Read the raw pressure and temperature values
+        updateAltimeter(bmp, tempAltData, refPressure);
+        sumPressure += tempAltData[1]; // Add the pressure reading to the sum
+        delay(ALTIMETER_CALIBRATION_DELAY);
+    }
+
+    refPressure = sumPressure / (ALTIMETER_CALIBRATION_COUNT * 100); // Calculate the average pressure for calibration and convert to HPA
     
     // Configure BMP sensor if successfully initialized
     if (success) {
@@ -181,18 +196,19 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, dou
 
 }
 
-bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float refPressure) {
-    // Try multiple attempts
-    for (int attempts = 0; attempts < 3; attempts++) {
-        // Read data from the BMP sensor
-        if (bmp->performReading()) {
+bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], double& refPressure) {
+    // Read data from the BMP sensor
+    if (bmp->performReading()) {
             // Update altitude data array
             altData[0] = bmp->readAltitude(refPressure);  // Altitude based on reference pressure
             altData[1] = bmp->pressure;                   // Raw pressure
             altData[2] = bmp->temperature;                // Temperature
             return true;
-        }
+    } else {
+        Serial.println("Failed to read BMP390 sensor data!");
+        return false;
     }
+    
     
     // If we get here, all attempts failed
     Serial.println("Failed to perform altimeter reading after multiple attempts");
