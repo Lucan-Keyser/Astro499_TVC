@@ -9,6 +9,7 @@
 #include "../include/control.h"
 #include "../include/state.h"
 #include "../include/logging.h"
+#include "../include/config.h"
 
 // Builtin LED for basic testing
 #define LED_BUILTIN 13
@@ -66,12 +67,13 @@ void setup() {
     // pinMode(PYRO1_FIRE, OUTPUT);
     // pinMode(PYRO2_FIRE, OUTPUT);
     // digitalWrite(PYRO1_FIRE, LOW);
+    // pinMode(BNO_RESET_PIN, OUTPUT);
+    // delay(1000);
     // digitalWrite(PYRO2_FIRE, LOW);
     yawServo.attach(yawServoPin);  // Attach yaw servo to pin
     pitchServo.attach(pitchServoPin);  // Attach pitch servo to pin
-    initializeSensors(&bno, &bmp, refPressure);// Initialize sensors
-    initializeQuaternions(&bno, quaternions, accelerometer);  //one second
-    playAlertTone(1000, 2000);
+    initializeSensors(&bno, &bmp, quaternions, accelerometer, refPressure);// Initialize sensors
+    playAlertTone(1000, 200);
 }
 
 void loop() {
@@ -82,12 +84,12 @@ void loop() {
 
   // Update IMU data
   updateIMU(&bno, gyroRates, quaternions, eulerAngles, accelerometer, dt);
-  updateAltimeter(&bmp, altData, refPressure);
+
   //control attitude
-  stateMachine(STATE, accelerometer, eulerAngles, altData);
+  stateMachine(&bno, &bmp, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure); // Update state machine
 
   control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
-  logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, dt);
+  // logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt);
   // sendToLog();
 
 
@@ -96,7 +98,8 @@ void loop() {
   // Serial.print("Altitude: ");
   // Serial.println(altData[0]); // Print altitude
   // // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
-  Serial.printf("dt: %.6f\n", dt);
+  // Serial.printf("dt: %.6f\n", dt);
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
-  // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
+  // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", gyroRates[0], gyroRates[1], gyroRates[2]);
+  Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
 }

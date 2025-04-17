@@ -33,8 +33,7 @@
 #define APOGEE_DETECTION_INTERVAL 1000 // Time interval for apogee detection in milliseconds
 #define APOGEE_DETECTION_COUNT 10 // Number of samples for apogee detection
 #define APOGEE_DETECTION_DELAY 10 // Delay between apogee detection samples in milliseconds
-
-
+#define BNO_RESET_PIN 15 // Pin for BNO reset
 
 
 
@@ -55,10 +54,11 @@
 
 // State Definitions
 #define PAD_IDLE 0
-#define COUNTDOWN 1
-#define ASCENT 2
-#define UNPOWERED_ASCENT 3
-#define DESCENT 4
+#define CALIBRATE 1
+#define COUNTDOWN 2
+#define ASCENT 3
+#define UNPOWERED_ASCENT 4
+#define DESCENT 5
 #define ABORT -1
 
 // Other Constants

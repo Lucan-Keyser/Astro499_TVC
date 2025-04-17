@@ -9,7 +9,7 @@ void printToCSV();
 
 void sendToLog();
 
-void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double dt);
+void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt);
 
 void logControlData (double* gimbal, double* servo);
 

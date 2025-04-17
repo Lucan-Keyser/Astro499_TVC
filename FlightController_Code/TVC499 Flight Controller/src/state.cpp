@@ -1,5 +1,6 @@
 #include "../include/state.h"
 #include "../include/config.h"
+#include "../include/sensors.h"
 #include <math.h>
 
 double startLaunch = 0;
@@ -10,15 +11,18 @@ int apogeeMeasurementCount = 0; //how many times have we checked for apogee?
 double altitudeSum = 0; //sum of altitudes for averaging
 double averageAltitude = 0; //average altitude for apogee detection
 
-void stateMachine(int& state, double* accelerometer, double* eulerAngles, double* altData) {
+void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure) {
     switch (state) {
         case PAD_IDLE:
+            break;
+        case CALIBRATE:
             break;
         case COUNTDOWN:
             break;
         case ASCENT:
             break;
         case UNPOWERED_ASCENT:
+            updateAltimeter(bmp, altData, refPressure); //kills dt, moving to state machine. on unpowered ascent we should be fine
             break;
         case DESCENT:
             break;
@@ -26,11 +30,11 @@ void stateMachine(int& state, double* accelerometer, double* eulerAngles, double
             break;
     }
 
-    updateState(state, accelerometer, eulerAngles, altData);
+    updateState(bno, bmp, state, accelerometer, eulerAngles, altData, quaternions, refPressure);
     // Serial.println(state);
 }
 
-void updateState(int& state, double* accelerometer, double* eulerAngles, double* altData) {
+void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure) {
     switch (state) {
         case PAD_IDLE: //monitor launch criteria, have to include criteria
             if (Serial.available()) {
@@ -44,8 +48,12 @@ void updateState(int& state, double* accelerometer, double* eulerAngles, double*
                 }
             }
             break;
+        case CALIBRATE:
+            resetSensors(bno, bmp, quaternions, accelerometer, refPressure);
+            state++;
+            break;
         case COUNTDOWN:
-            if (accelerometer[0] <= -15) { //x acceleration
+            if (accelerometer[0] <= -15) { //x acceleration, m/s^2
                 startLaunch = millis();
                 state++;
             }
@@ -60,7 +68,7 @@ void updateState(int& state, double* accelerometer, double* eulerAngles, double*
             }
             break;}
         case UNPOWERED_ASCENT: {
-            if (detectApogee(altData)) { //if we detect apogee, we are in unpowered ascent
+            if (detectApogee(altData)) { //if we detect apogee, we are in descent
                 state++;
             } 
             break; }
@@ -72,7 +80,7 @@ void updateState(int& state, double* accelerometer, double* eulerAngles, double*
 }
 
 bool checkAbort(double* eulerAngles) {
-    if ((abs(eulerAngles[1])) >= ABORT_CRITERIA || (abs(eulerAngles[2]) >= ABORT_CRITERIA)) { //if we pitch too far
+    if ((abs(eulerAngles[1])) >= ABORT_CRITERIA || (abs(eulerAngles[2]) >= ABORT_CRITERIA)) { //if we pitch/yaw too far
         return true;
     } else {
         return false;
@@ -80,7 +88,7 @@ bool checkAbort(double* eulerAngles) {
 }
 
 bool detectApogee(double* altData) {
-    if (detectingApogee) { //if we are checking for apogee, check for it
+    if (detectingApogee) { //if we are checking for apogee, gather data
         if ((millis() - apogeeTimeLast) >= APOGEE_DETECTION_DELAY) {
             apogeeTimeLast = millis(); //reset timer for future iterations
             apogeeMeasurementCount++; //increment measurement count
@@ -106,26 +114,9 @@ bool detectApogee(double* altData) {
         }
     } else { //if we are below ground level, we can't be at apogee
         if ((millis() - apogeeTimeLast) > APOGEE_DETECTION_INTERVAL) { //if its time to check apogee, lets check it!
-            detectingApogee = true; //reset timer for future iterations
+            detectingApogee = true; //gather apogee data
         }
         return false;
     }
     
 }
-
-// boolean detectApogee() { //have we apogeed?
-//     if ((millis()-apogeeLast)>apogeeDt) {//if its time to check apogee, lets check it!
-//       apogeeLast = millis(); //reset timer for future iterations
-  
-//       if (previousAltitude>altData[0]+deltaH) { //have we descended below previous altitudes?
-//         return true; //apogee!
-//       }
-  
-//       previousAltitude = altData[0]; //reset altitude to check in the future. 
-//       return false; //no apogee!
-  
-//     } else { 
-//       return false; //no apogee!
-//     }
-//   }
-  

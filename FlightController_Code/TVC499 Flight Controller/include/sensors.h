@@ -29,7 +29,7 @@
  * @param bmp Pointer to BMP3XX sensor object
  * @return True if initialization successful, false otherwise
  */
-bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPressure);
+bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure);
 
 /**
  * @brief Get gyroscope data from IMU with offset compensation
@@ -57,29 +57,19 @@ bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], double& refPressur
  */
 void returnData(sensors_event_t* event, double data[3]);
 
-/**
- * @brief Reset and calibrate all sensors
- * @param bno Pointer to BNO085 sensor object
- * @param bmp Pointer to BMP3XX sensor object
- * @param altData Array to store altitude data
- * @param refPressure Pointer to reference pressure value
- * @param gyroOffsets Array to store gyroscope offsets [x,y,z]
- */
-void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double altData[3], float* refPressure, double gyroOffsets[3]);
 
 /**
  * @brief IMU zeroing function to reset gyro data
  * @param bno Pointer to BNO085 sensor object
- * @param gyroOffsets Array to store gyroscope offsets [x,y,z]
  */
-void zeroIMU(Adafruit_BNO08x* bno, double gyroOffsets[3]);
+void resetIMU();
 
+void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure);
 /**
  * @brief Set reference pressure for altitude calculation
  * @param bmp Pointer to BMP3XX sensor object
- * @param altData Array to store altitude data
  * @param refPressure Pointer to reference pressure value
  */
-void zeroAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float* refPressure);
+void zeroAltimeter(Adafruit_BMP3XX* bmp, double& refPressure);
 
 #endif // SENSORS_H

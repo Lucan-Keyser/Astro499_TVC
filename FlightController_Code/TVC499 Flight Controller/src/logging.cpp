@@ -10,14 +10,16 @@ double alt[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude (m), pressure (PA), 
 double dT = 0; 
 double gimbal[2] = {0.0, 0.0}; //pitch and yaw torque
 double servo[2] =  {0.0, 0.0};
+double state = 0;
 
-void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double dt) {
+void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt) {
     for(int i = 0; i < 3; i++) gyro[i] = gyroRates[i];
     for(int i = 0; i < 4; i++) quat[i] = quaternions[i];
     for(int i = 0; i < 3; i++) euler[i] = eulerAngles[i];
     for(int i = 0; i < 3; i++) accel[i] = accelerometer[i];
     for(int i = 0; i < 3; i++) alt[i] = altData[i];
     refP = refPressure;
+    state = st;
     dT = dt;
     
 }
@@ -78,7 +80,12 @@ void printToCSV() {
       Serial.print(servo[i]);
       Serial.print(",");
     }
-  
+
+    //print state
+    Serial.print(state);
+    Serial.print(",");
+   
+
     // Print delta time
     Serial.print(dT);
   

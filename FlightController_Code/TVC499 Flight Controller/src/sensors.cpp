@@ -13,16 +13,14 @@
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
 
-bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPressure) {
-    double tempAltData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude, pressure, temperature], just within this function
-    double sumPressure = 0.0; // Sum of pressure readings for calibration
+bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
     bool success = true;
     
     // Initialize BNO085 IMU on Wire2
     Wire.begin();
     Wire.setClock(400000); // Set to  400kHz I2C speed
-
-
+    // pinMode(BNO_RESET_PIN, OUTPUT);
+    // digitalWrite(BNO_RESET_PIN, LOW);
     // In your initializeSensors function
     if (!bno->begin_I2C(0x4A, &Wire)) {
         Serial.println("No BNO085 sensor detected!");
@@ -31,6 +29,7 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPr
         Serial.println("BNO085 detected successfully!");
 
     }
+
     
     Wire1.begin();
     Wire1.setClock(400000);
@@ -43,14 +42,7 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPr
         Serial.println("BMP390 detected at address 0x77 on Wire1!");
     }
 
-    for (int i = 0; i < ALTIMETER_CALIBRATION_COUNT; i++) {
-        // Read the raw pressure and temperature values
-        updateAltimeter(bmp, tempAltData, refPressure);
-        sumPressure += tempAltData[1]; // Add the pressure reading to the sum
-        delay(ALTIMETER_CALIBRATION_DELAY);
-    }
-
-    refPressure = sumPressure / (ALTIMETER_CALIBRATION_COUNT * 100); // Calculate the average pressure for calibration and convert to HPA
+    
     
     // Configure BMP sensor if successfully initialized
     if (success) {
@@ -70,6 +62,9 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double& refPr
             success = false;
         }
     }
+
+    initializeQuaternions(bno, quaternions, accelerometer); 
+    zeroAltimeter(bmp, refPressure);
     
     return success;
 }
@@ -105,8 +100,8 @@ void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* a
     double yAvg = ySum/n;
     double zAvg = zSum/n;
 
-    double pitch = atan(zAvg/xAvg); //pitch angle on pad, tan^-1(z/x)
-    double yaw = -atan(yAvg/xAvg);//yaw angle on pad, -tan^-1(y/x)
+    double pitch = atan(zAvg/xAvg);  //pitch angle on pad, tan^-1(z/x),
+    double yaw = -atan(yAvg/xAvg) + DEG_TO_RAD * 1.4;//yaw angle on pad, -tan^-1(y/x), BNO is tilted 1.4 degrees
     double roll = 0;
 
     // double pitch = RAD_TO_DEG*atan(accelerometer[2]/accelerometer[0]);
@@ -229,91 +224,34 @@ void returnData(sensors_event_t* event, double data[3]) {
     }
 }
 
-void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double altData[3], float* refPressure, double gyroOffsets[3]) {
-    // Reset both IMU and altimeter
-    zeroIMU(bno, gyroOffsets);  // Reset IMU data
-    zeroAltimeter(bmp, altData, refPressure);  // Reset altitude reference
-}
-
 //NO NEED CURRENTLY, BUT MAY BE NEEDED LATER
 
+void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
+    // resetIMU();
+    zeroAltimeter(bmp, refPressure);
+    initializeQuaternions(bno, quaternions, accelerometer); 
+}
+void resetIMU() {
+    digitalWrite(BNO_RESET_PIN, HIGH);
+    delay(10);
+    digitalWrite(BNO_RESET_PIN, LOW);
+    delay(10);
+    digitalWrite(BNO_RESET_PIN, HIGH);
+    delay(1000);
+    Serial.println("BNO RESET");
+}
 
-// void zeroIMU(Adafruit_BNO08x* bno, double gyroOffsets[3]) {
-//     sh2_SensorValue_t sensorValue;
-//     double tempOffsets[3] = {0.0, 0.0, 0.0};
-//     int numSamples = 100; // Number of samples to average
-//     unsigned long sampleDelay = 10; // Delay between samples in milliseconds
-//     int validSamples = 0; // Counter for valid samples
+void zeroAltimeter(Adafruit_BMP3XX* bmp, double& refPressure) {
+    double tempAltData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude, pressure, temperature], just within this function
+    double sumPressure = 0.0; // Sum of pressure readings for calibration
+    // Try to get a good pressure reading
+    for (int i = 0; i < ALTIMETER_CALIBRATION_COUNT; i++) {
+        // Read the raw pressure and temperature values
+        updateAltimeter(bmp, tempAltData, refPressure);
+        sumPressure += tempAltData[1]; // Add the pressure reading to the sum
+        delay(ALTIMETER_CALIBRATION_DELAY);
+    }
 
-//     Serial.println("Starting uncalibrated gyroscope calibration...");
-    
-//     // Collect multiple samples to calculate offsets
-//     for (int i = 0; i < numSamples; i++) {
-//         if (bno->getSensorEvent(&sensorValue)) {
-//             if (sensorValue.sensorId == SH2_GYROSCOPE_UNCALIBRATED) {
-//                 tempOffsets[0] += sensorValue.un.gyroscopeUncal.x;
-//                 tempOffsets[1] += sensorValue.un.gyroscopeUncal.y;
-//                 tempOffsets[2] += sensorValue.un.gyroscopeUncal.z;
-//                 validSamples++;
-                
-//                 if (i % 20 == 0) {
-//                     Serial.print(".");
-//                 }
-//             }
-//         } else {
-//             Serial.println("Failed to retrieve gyroscope data during calibration!");
-//         }
-//         delay(sampleDelay); // Wait between samples
-//     }
-    
-//     Serial.println();
+    refPressure = sumPressure / (ALTIMETER_CALIBRATION_COUNT * 100); // Calculate the average pressure for calibration and convert to HPA
 
-//     // Calculate average offsets if valid samples were collected
-//     if (validSamples > 0) {
-//         gyroOffsets[0] = tempOffsets[0] / validSamples;
-//         gyroOffsets[1] = tempOffsets[1] / validSamples;
-//         gyroOffsets[2] = tempOffsets[2] / validSamples;
-//         Serial.printf("IMU zeroed with %d samples\n", validSamples);
-//         Serial.printf("Gyro Offsets: X=%.6f, Y=%.6f, Z=%.6f rad/s\n", 
-//                      gyroOffsets[0], gyroOffsets[1], gyroOffsets[2]);
-//     } else {
-//         Serial.println("No valid IMU samples during calibration!");
-//     }
-// }
-
-
-//still producing weird values, need to fix this, incorrest staritng alt
-// void zeroAltimeter(Adafruit_BMP3XX* bmp, double altData[3], float* refPressure) {
-//     // Try to get a good pressure reading
-//     bool readingSuccess = false;
-//     float currentPressure = 0;
-    
-//     // Try multiple times to get a reliable reading
-//     for (int attempts = 0; attempts < 5; attempts++) {
-//         if (bmp->performReading()) {
-//             currentPressure = bmp->pressure / 100.0;  // Convert Pa to hPa
-//             readingSuccess = true;
-//             break;
-//         }
-//         delay(10);
-//     }
-    
-//     if (readingSuccess) {
-//         // Use current pressure as reference (this sets current location as zero altitude)
-//         *refPressure = currentPressure;
-        
-//         Serial.print("Altitude reference set! Current pressure: ");
-//         Serial.print(*refPressure);
-//         Serial.println(" hPa");
-        
-//         // Take a new reading with this reference to verify
-//         if (updateAltimeter(bmp, altData, *refPressure)) {
-//             Serial.print("Calibrated altitude: ");
-//             Serial.print(altData[0]);
-//             Serial.println(" m (should be close to 0.0)");
-//         }
-//     } else {
-//         Serial.println("Failed to get pressure reading for calibration");
-//         // Don't change the reference pressure if we couldn't get a reading
-//     }
-// }
+}
