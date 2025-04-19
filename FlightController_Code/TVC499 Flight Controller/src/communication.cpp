@@ -22,27 +22,12 @@ struct TelemetryData {
 };
 
 bool initializeCommunication(RH_RF95* rf95) {
-    // // Initialize LoRa radio
-    // pinMode(RFM95_RST, OUTPUT);
-    // digitalWrite(RFM95_RST, LOW); // Reset the radio
-    // delay(10);
-    // digitalWrite(RFM95_RST, HIGH); // Release the reset
-    // // Allow time for the radio to initialize
-    // delay(10);
-    
     // Initialize RF95 module
     if (!rf95->init()) {
         Serial.println("RF95 LoRa init failed!");
         return false;
     }
     
-    // Configure radio parameters https://www.rfwireless-world.com/calculators/LoRa-Data-Rate-Calculator.html
-    // rf95->setFrequency(RF95_FREQ);
-    // rf95->setTxPower(20, false);  // 20 dBm power level, maximum power for LoRa (2 - 20 dBm)
-    // rf95->setCodingRate4(5); // Coding rate 4/5 for max data rate (5-8)
-    // rf95->setSpreadingFactor(6); // SF6 for max data rate (6-12)
-    // rf95->setSignalBandwidth(500000); // 500 kHz bandwidth for max data rate (125-500 kHz)
-
     rf95->setFrequency(RF95_FREQ);
     rf95->setTxPower(23, false);
     rf95->setSpreadingFactor(9);
@@ -54,8 +39,6 @@ bool initializeCommunication(RH_RF95* rf95) {
 }
 
 void checkForCommands(RH_RF95* rf95, String* command) {
-
-    //start timer
     unsigned long startTime = micros();
 
     // Check for incoming LoRa commands
@@ -75,14 +58,11 @@ void checkForCommands(RH_RF95* rf95, String* command) {
             
             // Store other commands for processing
             *command = receivedCommand;
-            //Serial.println("Received command: " + receivedCommand);
-            }
         }
+    }
     
-    //end timer
     unsigned long endTime = micros();
     double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
-    //printf("dt_LoRa_com_check: %f\n", dt); // Print time delta
 }
 
 void readSerial(String* command, bool* separationTriggered, bool* launchTriggered) { 
@@ -108,45 +88,38 @@ void readSerial(String* command, bool* separationTriggered, bool* launchTriggere
     }
 }
 
-void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle) {
-    // Check if enough time has passed since the last telemetry send
-
-    Serial.println("Telemetry data sending !");
-
+bool sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle) {
+    // Don't use waitPacketSent - make it non-blocking
+    
+    // Check if RF95 is busy - don't try to send if it's still transmitting
+    if (rf95->mode() == RHGenericDriver::RHModeTx) {
+        // Radio is busy sending, don't attempt a new transmission
+        return false;
+    }
+    
     // Create telemetry data structure
     TelemetryData data;
     data.roll = eulerAngles[0];
-    Serial.print("Roll: ");
-    Serial.println(data.roll);
     data.pitch = eulerAngles[1];
-    Serial.print("Pitch: ");
-    Serial.println(data.pitch);
     data.yaw = eulerAngles[2];
-    Serial.print("Yaw: ");
-    Serial.println(data.yaw);
     data.altitude = altData[0];
-    Serial.print("Altitude: ");
-    Serial.println(data.altitude);
     data.yawServo = yawServoAngle;
-    Serial.print("Yaw Servo Angle: ");
-    Serial.println(data.yawServo);
     data.pitchServo = pitchServoAngle;
-    Serial.print("Pitch Servo Angle: ");
-    Serial.println(data.pitchServo);
 
-    // Send the telemetry data
+    // Debug print (can be commented out in production for performance)
+    // Serial.print("Sending telemetry: Roll=");
+    // Serial.print(data.roll);
+    // Serial.print(", Pitch=");
+    // Serial.print(data.pitch);
+    // Serial.print(", Alt=");
+    // Serial.println(data.altitude);
+    
+    // Send the telemetry data without waiting
     if (rf95->send((uint8_t*)&data, sizeof(TelemetryData))) {
-        Serial.println("Telemetry data sent!");
+        // Packet queued for sending, but not waiting
+        return true;
     } else {
-        Serial.println("Failed to send telemetry data!");
+        Serial.println("Failed to queue telemetry data");
+        return false;
     }
-
-    if (rf95->waitPacketSent()) {
-        Serial.println("Packet successfully sent!");
-    } else {
-        Serial.println("Packet sending timed out!");
-    }
-
-
-    // Update the last send time
 }

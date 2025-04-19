@@ -32,11 +32,9 @@ void logControlData (double* gim, double* serv) {
     for(int i = 0; i < 2; i++) servo[i] = serv[i];
 }
 
-void sendToLog (RH_RF95* rf95) { //log all data that's been updated
+bool sendToLog (RH_RF95* rf95) { //log all data that's been updated
   // printToCSV();
-  Serial.println("Sending data to LoRa...");
-  sendData(rf95, euler, alt, servo[0], servo[1]); //send data to LoRa
-  Serial.println("Data sent to LoRa!");
+  return sendData(rf95, euler, alt, servo[0], servo[1]); //send data to LoRa, non-blocking
 }
 
 void printToCSV() {
@@ -98,6 +96,3 @@ void printToCSV() {
     // End the line
     Serial.println();
   }
-
-
-
