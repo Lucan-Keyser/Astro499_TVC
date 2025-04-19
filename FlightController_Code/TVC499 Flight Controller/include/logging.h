@@ -1,6 +1,15 @@
 #include <Arduino.h>
 #include <PWMServo.h>
 #include <RH_RF95.h> // Include the header file for RH_RF95
+#include <DMAChannel.h>  // Add this include
+
+// Existing definitions...
+
+// Add these prototypes
+void setupSerialDMA();
+void dmaCompleteCallback();
+void sendSerialDMA(const uint8_t* data, size_t size);
+bool isDMAActive();
 
 
 #ifndef LOGGING_H

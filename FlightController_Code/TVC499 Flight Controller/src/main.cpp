@@ -63,7 +63,7 @@ void setup() {
     Serial.begin(115200);
     Serial5.begin(115200);
     // delay(2000);  // Wait for serial to initialize
-
+    setupSerialDMA(); // Set up DMA for Serial5 TX
     prevTime = micros();
     // Serial.println("Teensy Analog Voltage Reader");
     // Serial.println("Reading from pins 25(A11) and 26(A12)");

@@ -4,6 +4,13 @@
 #include "../include/communication.h"
 #include "../include/hardware.h"
 #include <RH_RF95.h> // Include the header file for RH_RF95
+#include <DMAChannel.h>
+
+// Define DMA channel
+DMAChannel serialTxDMA;
+uint8_t serialBuffer[1024];  // Buffer to hold data
+volatile bool dmaActive = false;
+
 //have to change variable names to make them local to file
 double gyro[3] = {0.0, 0.0, 0.0}; //in radians/sec
 double quat[4] = {1, 0, 0, 0}; //Quaterinon vector
@@ -16,6 +23,92 @@ double gimbal[2] = {0.0, 0.0}; //pitch and yaw torque
 double servo[2] =  {0.0, 0.0};
 double state = 0;
 double cont[2] = {0.0,0.0}; // Initialize continuity array
+
+void setupSerialDMA() {
+  // Configure DMA for Serial5 TX
+  serialTxDMA.destination(IMXRT_LPUART8.DATA);  // Serial5 is LPUART8 on Teensy 4.1
+  serialTxDMA.triggerAtHardwareEvent(DMAMUX_SOURCE_LPUART8_TX);
+  serialTxDMA.disableOnCompletion();
+  serialTxDMA.attachInterrupt(dmaCompleteCallback);
+}
+
+void dmaCompleteCallback() {
+  dmaActive = false;
+}
+
+void sendSerialDMA(const uint8_t* data, size_t size) {
+  if (dmaActive) return;  // Don't start a new transfer if one is in progress
+  
+  // Copy data to buffer (must remain valid during DMA transfer)
+  if (size > sizeof(serialBuffer)) size = sizeof(serialBuffer);
+  memcpy(serialBuffer, data, size);
+  
+  // Set up and start DMA transfer
+  serialTxDMA.sourceBuffer(serialBuffer, size);
+  dmaActive = true;
+  serialTxDMA.enable();
+}
+
+void printToCSV_DMA() {
+  // Create a buffer to hold the formatted data
+  char buffer[1024];
+  int pos = 0;
+  
+  // Format data into the buffer
+  for(int i = 0; i < 3; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", gyro[i]);
+  }
+
+  for(int i = 0; i < 4; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", quat[i]);
+  }
+
+  // Print Euler angles (degrees)
+  for(int i = 0; i < 3; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", euler[i]);
+  }
+
+  // Print accelerometer data
+  for(int i = 0; i < 3; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", accel[i]);
+  }
+
+  // Print reference pressure
+  pos += sprintf(buffer + pos, "%.6f,", refP);
+
+  // Print altimeter data
+  for(int i = 0; i < 3; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", alt[i]);
+  }
+
+  for(int i = 0; i < 2; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", gimbal[i]);
+  }
+
+  for(int i = 0; i < 2; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", servo[i]);
+  }
+
+  for(int i = 0; i < 2; i++) {
+    pos += sprintf(buffer + pos, "%.6f,", cont[i]);
+  }
+
+  //print state
+  pos += sprintf(buffer + pos, "%.6f,", state);
+ 
+
+  // Print delta time
+  pos += sprintf(buffer + pos, "%.6f,", dT);
+
+
+  // End the line
+  sendSerialDMA((uint8_t*)buffer, pos);
+}
+
+
+
+
+
 
 void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt, double* continuity) {
     for(int i = 0; i < 3; i++) gyro[i] = gyroRates[i];
@@ -36,7 +129,7 @@ void logControlData (double* gim, double* serv) {
 }
 
 void sendToLog (RH_RF95* rf95) { //log all data that's been updated
-  printToCSV();
+  printToCSV_DMA(); // Print to CSV using DMA
   sendData(rf95, euler, alt, servo[0], servo[1], cont[0], cont[1], dT, state); //send data to LoRa
   // Serial.println("Data sent to LoRa!");
 }
