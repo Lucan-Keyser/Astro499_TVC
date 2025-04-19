@@ -11,14 +11,19 @@
 #include "../include/hardware.h"
 #include "../include/config.h"
 
+double lastTelemetryTime = millis(); // Last time telemetry was sent
 #pragma pack(push, 1)
 struct TelemetryData {
-  double yaw;
-  double pitch;
-  double roll;
-  double altitude;
-  double yawServo;
-  double pitchServo;
+  float yaw;
+  float pitch;
+  float roll;
+  float altitude;
+  float yawServo;
+  float pitchServo;
+  float continuity1;
+  float continuity2;
+  float dt;
+  float state;
 };
 
 bool initializeCommunication(RH_RF95* rf95) {
@@ -53,8 +58,8 @@ bool initializeCommunication(RH_RF95* rf95) {
     return true;
 }
 
-void checkForCommands(RH_RF95* rf95, String* command) {
-
+String checkForCommands(RH_RF95* rf95) {
+    String command = ""; // Initialize command string
     //start timer
     unsigned long startTime = micros();
 
@@ -74,15 +79,11 @@ void checkForCommands(RH_RF95* rf95, String* command) {
             Serial.println(receivedCommand);
             
             // Store other commands for processing
-            *command = receivedCommand;
+            command = receivedCommand;
             //Serial.println("Received command: " + receivedCommand);
             }
         }
-    
-    //end timer
-    unsigned long endTime = micros();
-    double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
-    //printf("dt_LoRa_com_check: %f\n", dt); // Print time delta
+    return command; // Return the received command
 }
 
 void readSerial(String* command, bool* separationTriggered, bool* launchTriggered) { 
@@ -108,45 +109,44 @@ void readSerial(String* command, bool* separationTriggered, bool* launchTriggere
     }
 }
 
-void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle) {
+void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state) {
     // Check if enough time has passed since the last telemetry send
-
-    Serial.println("Telemetry data sending !");
-
-    // Create telemetry data structure
-    TelemetryData data;
-    data.roll = eulerAngles[0];
-    Serial.print("Roll: ");
-    Serial.println(data.roll);
-    data.pitch = eulerAngles[1];
-    Serial.print("Pitch: ");
-    Serial.println(data.pitch);
-    data.yaw = eulerAngles[2];
-    Serial.print("Yaw: ");
-    Serial.println(data.yaw);
-    data.altitude = altData[0];
-    Serial.print("Altitude: ");
-    Serial.println(data.altitude);
-    data.yawServo = yawServoAngle;
-    Serial.print("Yaw Servo Angle: ");
-    Serial.println(data.yawServo);
-    data.pitchServo = pitchServoAngle;
-    Serial.print("Pitch Servo Angle: ");
-    Serial.println(data.pitchServo);
-
-    // Send the telemetry data
-    if (rf95->send((uint8_t*)&data, sizeof(TelemetryData))) {
-        Serial.println("Telemetry data sent!");
+    if (millis() - lastTelemetryTime < TELEMETRY_INTERVAL) {
+        return; // Not enough time has passed, skip sending telemetry
     } else {
-        Serial.println("Failed to send telemetry data!");
+
+        // Serial.println("Telemetry data sending !");
+
+        // Create telemetry data structure
+        TelemetryData data;
+        data.roll = eulerAngles[0];
+        data.pitch = eulerAngles[1];
+
+        data.yaw = eulerAngles[2];
+
+        data.altitude = altData[0];
+
+        data.pitchServo = pitchServoAngle;
+
+        data.yawServo = yawServoAngle;
+
+        data.continuity1 =  continuity1; // Check pyro continuity
+
+        data.continuity2 =  continuity2; // Check pyro continuity
+
+        data.dt = dt;
+        
+        data.state = state;
+
+        // Send the telemetry data
+        if (rf95->send((uint8_t*)&data, sizeof(TelemetryData))) {
+            // Serial.println("Telemetry data sent!");
+        } else {
+            Serial.println("Failed to send telemetry data!");
+        }
+
+        // Update the last send time
+        lastTelemetryTime = millis(); // Update the last send time
     }
-
-    if (rf95->waitPacketSent()) {
-        Serial.println("Packet successfully sent!");
-    } else {
-        Serial.println("Packet sending timed out!");
-    }
-
-
-    // Update the last send time
+    
 }

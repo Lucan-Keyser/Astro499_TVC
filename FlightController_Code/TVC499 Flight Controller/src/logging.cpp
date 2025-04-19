@@ -2,6 +2,7 @@
 #include "../include/logging.h"
 #include "../include/config.h"
 #include "../include/communication.h"
+#include "../include/hardware.h"
 #include <RH_RF95.h> // Include the header file for RH_RF95
 //have to change variable names to make them local to file
 double gyro[3] = {0.0, 0.0, 0.0}; //in radians/sec
@@ -14,13 +15,15 @@ double dT = 0;
 double gimbal[2] = {0.0, 0.0}; //pitch and yaw torque
 double servo[2] =  {0.0, 0.0};
 double state = 0;
+double cont[2] = {0.0,0.0}; // Initialize continuity array
 
-void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt) {
+void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt, double* continuity) {
     for(int i = 0; i < 3; i++) gyro[i] = gyroRates[i];
     for(int i = 0; i < 4; i++) quat[i] = quaternions[i];
     for(int i = 0; i < 3; i++) euler[i] = eulerAngles[i];
     for(int i = 0; i < 3; i++) accel[i] = accelerometer[i];
     for(int i = 0; i < 3; i++) alt[i] = altData[i];
+    for(int i = 0; i < 2; i++) cont[i] = continuity[i];
     refP = refPressure;
     state = st;
     dT = dt;
@@ -33,10 +36,9 @@ void logControlData (double* gim, double* serv) {
 }
 
 void sendToLog (RH_RF95* rf95) { //log all data that's been updated
-  // printToCSV();
-  Serial.println("Sending data to LoRa...");
-  sendData(rf95, euler, alt, servo[0], servo[1]); //send data to LoRa
-  Serial.println("Data sent to LoRa!");
+  printToCSV();
+  sendData(rf95, euler, alt, servo[0], servo[1], cont[0], cont[1], dT, state); //send data to LoRa
+  // Serial.println("Data sent to LoRa!");
 }
 
 void printToCSV() {
@@ -45,58 +47,65 @@ void printToCSV() {
   
     // Print gyro data (rad/s)
     for(int i = 0; i < 3; i++) {
-      Serial.print(gyro[i]);
-      Serial.print(",");
+      Serial5.print(gyro[i]);
+      Serial5.print(",");
     }
   
     // Print quaternion data
     for(int i = 0; i < 4; i++) {
-      Serial.print(quat[i]);
-      Serial.print(",");
+      Serial5.print(quat[i]);
+      Serial5.print(",");
     }
   
     // Print Euler angles (degrees)
     for(int i = 0; i < 3; i++) {
-      Serial.print(euler[i]);
-      Serial.print(",");
+      Serial5.print(euler[i]);
+      Serial5.print(",");
     }
   
     // Print accelerometer data
     for(int i = 0; i < 3; i++) {
-      Serial.print(accel[i]);
-      Serial.print(",");
+      Serial5.print(accel[i]);
+      Serial5.print(",");
     }
   
     // Print reference pressure
-    Serial.print(refP);
-    Serial.print(",");
+    Serial5.print(refP);
+    Serial5.print(",");
   
     // Print altimeter data
     for(int i = 0; i < 3; i++) {
-      Serial.print(alt[i]);
-      Serial.print(",");
+      Serial5.print(alt[i]);
+      Serial5.print(",");
     }
 
     for(int i = 0; i < 2; i++) {
-      Serial.print(gimbal[i]);
-      Serial.print(",");
+      Serial5.print(gimbal[i]);
+      Serial5.print(",");
     }
 
     for(int i = 0; i < 2; i++) {
-      Serial.print(servo[i]);
-      Serial.print(",");
+      Serial5.print(servo[i]);
+      Serial5.print(",");
+    }
+
+    for(int i = 0; i < 2; i++) {
+      Serial5.print(cont[i]);
+      Serial5.print(",");
     }
 
     //print state
-    Serial.print(state);
-    Serial.print(",");
+    Serial5.print(state);
+    Serial5.print(",");
    
 
     // Print delta time
-    Serial.print(dT);
-  
+    Serial5.print(dT);
+
+    
+
     // End the line
-    Serial.println();
+    Serial5.println();
   }
 
 

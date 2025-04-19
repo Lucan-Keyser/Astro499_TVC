@@ -34,7 +34,7 @@ bool initializeCommunication(RH_RF95* rf95);
  * @param rf95 Pointer to RF95 LoRa radio object
  * @param command Pointer to command string
  */
-void checkForCommands(RH_RF95* rf95, String* command);
+String checkForCommands(RH_RF95* rf95);
 
 /**
  * @brief Process serial commands looking for "SEPARATE" or "LAUNCH"
@@ -52,6 +52,6 @@ void readSerial(String* command, bool* separationTriggered, bool* launchTriggere
  * @param yawServo Pointer to yaw servo object
  * @param pitchServo Pointer to pitch servo object
  */
-void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle);
+void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state);
 
 #endif // COMMUNICATION_H

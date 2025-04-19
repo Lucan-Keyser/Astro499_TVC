@@ -21,13 +21,12 @@
 // Global objects and variables
 Adafruit_BNO08x bno;  // Updated to use BNO08x instead of BNO055
 sh2_SensorValue_t sensorValue;
-RH_RF95 rf95;  // LoRa radio object
+RH_RF95 rf95(RFM95_CS, RFM95_INT);
 Adafruit_BMP3XX bmp;  // BMP390 altimeter
 PWMServo yawServo;  // Yaw servo
 PWMServo pitchServo;  // Pitch servo
 int STATE = 0;
-int yawServoPin = 2;  // Pin for yaw servo
-int pitchServoPin = 3;  // Pin for pitch servo
+
 
 // Sensor data arrays
 double gyroRates[3] = {0.0, 0.0, 0.0}; //in radians/sec
@@ -36,6 +35,7 @@ double eulerAngles[3] = {0.0, 0.0, 0.0}; // Yaw, Pitch, Roll in degrees
 double accelerometer[3] = {0.0, 0.0, 0.0}; //accelerometer values, x,y,z
 double refPressure = 1000; // Reference pressure in hPa
 double altData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude (m), pressure (PA), temperature]
+double continuity[2] = {0.0, 0.0}; // Initialize continuity array
 double dt = 0; 
 double prevTime = 0;// Current previous loop time
 // double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
@@ -55,6 +55,9 @@ int analogValue2 = 0;
 float voltage1 = 0.0;
 float voltage2 = 0.0;
 
+bool separationTriggered = false; // Flag for separation command
+bool launchTriggered = false; // Flag for launch command
+
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
@@ -72,11 +75,12 @@ void setup() {
     // pinMode(BNO_RESET_PIN, OUTPUT);
     // delay(1000);
     // digitalWrite(PYRO2_FIRE, LOW);
-    yawServo.attach(yawServoPin);  // Attach yaw servo to pin
-    pitchServo.attach(pitchServoPin);  // Attach pitch servo to pin
-    playAlertTone(5000, 2000);
+    initializeHardware(separationTriggered);
+    pitchServo.attach(PITCH_SERVO_PIN);  // Attach pitch servo to pin J2
+    yawServo.attach(YAW_SERVO_PIN);  // Attach yaw servo to pin J1
+    // playAlertTone(5000, 2000);
     initializeCommunication(&rf95); // Initialize LoRa communication
-    delay(500);  // Wait for LoRa to initialize
+    delay(100);  // Wait for LoRa to initialize
     initializeSensors(&bno, &bmp, quaternions, accelerometer, refPressure);// Initialize sensors
     playAlertTone(1000, 2000);
 }
@@ -87,20 +91,18 @@ void loop() {
   double currentTime = micros();
   dt = (currentTime - prevTime) / 1000000.0; // Convert microseconds to seconds
   prevTime = currentTime;
-
+  checkPyroContinuity(continuity); // Check pyro continuity
   // Update IMU data
   updateIMU(&bno, gyroRates, quaternions, eulerAngles, accelerometer, dt);
 
   //control attitude
-  stateMachine(&bno, &bmp, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure); // Update state machine
+  stateMachine(&bno, &bmp, &rf95, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure); // Update state machine
 
   control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
-  logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt);
-  if (millis() - lastSendTime > TELEMETRY_INTERVAL) {
-    sendToLog(&rf95);
-  }
-  lastSendTime = millis();
-
+  logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt, continuity);
+  sendToLog(&rf95);
+  // double gimbal[2] =  {0.0, 0.0};
+  // moveServos(gimbal, pitchServo, yawServo); //move servos to the calculated angles
 
    // Update altitude data
 
@@ -108,6 +110,7 @@ void loop() {
   // Serial.println(altData[0]); // Print altitude
   // // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
   Serial.printf("dt: %.6f\n", dt);
+
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", gyroRates[0], gyroRates[1], gyroRates[2]);
   // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);

@@ -6,7 +6,7 @@
 #define PYRO2_FIRE 29
 #define PYRO1_CONT A11  // continuity pyro 1
 #define PYRO2_CONT A12  // continuity pyro 2
-#define CONTINUITY_THRESHOLD 2
+#define CONTINUITY_THRESHOLD 2 // Threshold for continuity detection (in volts)
 
 // Flight Parameters
 #define THRUST_TIME 3000         // Thrust duration in milliseconds
@@ -17,8 +17,8 @@
 
 // Control Parameters
 #define SERVO_RATIO 3.3 //Ratio of gimbal to servo angle
-#define SERVO_OFFSET_PITCH 0 //Pitch servo offset in degrees
-#define SERVO_OFFSET_YAW 0 //Yaw servo offset in degrees
+#define SERVO_OFFSET_PITCH 6.5 //Pitch servo offset in degrees
+#define SERVO_OFFSET_YAW -2.5 //Yaw servo offset in degrees
 #define MAX_GIMBAL_ANGLE DEG_TO_RAD * 8
 #define MOMENT_OF_INERTIA 0.1 //Moment of inertia in kg*m^2
 #define MOMENT_ARM 0.49 //Moment arm in meters
@@ -34,6 +34,8 @@
 #define APOGEE_DETECTION_COUNT 10 // Number of samples for apogee detection
 #define APOGEE_DETECTION_DELAY 10 // Delay between apogee detection samples in milliseconds
 #define BNO_RESET_PIN 15 // Pin for BNO reset
+#define PITCH_SERVO_PIN 8 // Pin for pitch servo
+#define YAW_SERVO_PIN 9 // Pin for yaw servo
 
 
 
@@ -62,7 +64,7 @@
 #define ABORT -1
 
 // Other Constants
-#define TELEMETRY_INTERVAL 500    // Send telemetry every 50ms
+#define TELEMETRY_INTERVAL 200    // Send telemetry every 200ms
 
 
 

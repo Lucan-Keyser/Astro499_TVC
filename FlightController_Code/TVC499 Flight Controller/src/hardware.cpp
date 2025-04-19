@@ -33,10 +33,9 @@ void playAlertTone(int frequency, int duration) {
     digitalWrite(BUZZER_LOW, LOW);
 }
 
-void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTriggered) {
+void initializeHardware(bool& separationTriggered) {
     // Initialize separation state
-    *separationTriggered = false;
-    *launchTriggered = false;
+    separationTriggered = false;
     
     // Initialize buzzer pins
     pinMode(BUZZER_HIGH, OUTPUT);
@@ -61,20 +60,20 @@ void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTrigg
 //     FastLED.show();
 }
 
-bool checkPyroContinuity() {
+void checkPyroContinuity(double* continuity) {
+ 
     // Check continuity of pyro channels 
     int pyro1Value = analogRead(A11); // Read analog value from pyro 1 continuity pin
     int pyro2Value = analogRead(A12); // Read analog value from pyro 2 continuity pin
 
     // Check if both pyro channels have continuity
-    if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 / 1023) && pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
-        Serial.println("Continuity detected on both pyro channels.");
-        return true;
-    } else {
-        Serial.println("No continuity detected.");
-
-        return false;
-    }
+    if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
+        // Serial.println("Continuity detected on pyro channel 1.");
+        continuity[0] = 1.0; // Set continuity to 1.0 for pyro channel 1
+    } else if (pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
+        // Serial.println("Continuity detected on pyro channel 1.");
+        continuity[1] = 1.0; // Set continuity to 0.0 for pyro channel 2
+    } 
 }
 
 void triggerSeparation(bool* separationTriggered) {

@@ -35,8 +35,8 @@ void control(double* quaternions, double* omega, PWMServo pitchServo, PWMServo y
 void moveServos (double* gimbal, PWMServo pitchServo, PWMServo yawServo) {
     //gimbal input in radians to servo output
     
-    double pitchAngle = SERVO_RATIO * RAD_TO_DEG * gimbal[0] - SERVO_OFFSET_PITCH; //Pitch servo angle in degrees
-    double yawAngle = SERVO_RATIO * RAD_TO_DEG * gimbal[1] - SERVO_OFFSET_YAW; //Yaw servo angle in degrees
+    double pitchAngle = SERVO_RATIO * RAD_TO_DEG * gimbal[0] - SERVO_OFFSET_PITCH + 90; //Pitch servo angle in degrees
+    double yawAngle = SERVO_RATIO * RAD_TO_DEG * gimbal[1] - SERVO_OFFSET_YAW + 90; //Yaw servo angle in degrees
     
     
     // Serial.print("Pitch Servo Angle: ");

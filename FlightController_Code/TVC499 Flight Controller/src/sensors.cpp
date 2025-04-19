@@ -101,8 +101,8 @@ void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* a
     double yAvg = ySum/n;
     double zAvg = zSum/n;
 
-    double pitch = atan(zAvg/xAvg);  //pitch angle on pad, tan^-1(z/x),
-    double yaw = -atan(yAvg/xAvg) + DEG_TO_RAD * 1.4;//yaw angle on pad, -tan^-1(y/x), BNO is tilted 1.4 degrees
+    double pitch = atan(zAvg/xAvg) - DEG_TO_RAD * .9; //pitch angle on pad, tan^-1(z/x),
+    double yaw = -atan(yAvg/xAvg) - DEG_TO_RAD * .5;//yaw angle on pad, -tan^-1(y/x), BNO is tilted .5 degrees
     double roll = 0;
 
     // double pitch = RAD_TO_DEG*atan(accelerometer[2]/accelerometer[0]);

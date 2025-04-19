@@ -1,7 +1,9 @@
 #include "../include/state.h"
 #include "../include/config.h"
 #include "../include/sensors.h"
+#include <RH_RF95.h>
 #include <math.h>
+#include <communication.h>
 
 double startLaunch = 0;
 double apogeeTimeLast = 0; //last time we checked apogee
@@ -11,7 +13,7 @@ int apogeeMeasurementCount = 0; //how many times have we checked for apogee?
 double altitudeSum = 0; //sum of altitudes for averaging
 double averageAltitude = 0; //average altitude for apogee detection
 
-void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure) {
+void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure) {
     switch (state) {
         case PAD_IDLE:
             break;
@@ -30,26 +32,30 @@ void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, int& state, double
             break;
     }
 
-    updateState(bno, bmp, state, accelerometer, eulerAngles, altData, quaternions, refPressure);
+    updateState(bno, bmp, rf95, state, accelerometer, eulerAngles, altData, quaternions, refPressure);
     // Serial.println(state);
 }
 
-void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure) {
+void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure) {
     switch (state) {
         case PAD_IDLE: //monitor launch criteria, have to include criteria
-            if (Serial.available()) {
-                // Read command from Serial
-                String command = Serial.readString();
-                command.trim();
-                Serial.print("Received command: ");
-                Serial.println(command);
-                if (command == "g") {
-                    state++;
-                }
+            if (checkForCommands(rf95) == "LAUNCH") { //check for commands from LoRa
+                state++;
             }
+        // if (Serial.available()) {
+            //     // Read command from Serial
+            //     String command = Serial.readString();
+            //     command.trim();
+            //     Serial.print("Received command: ");
+            //     Serial.println(command);
+            //     if (command == "g") {
+            //         state++;
+            //     }
+            // }
             break;
         case CALIBRATE:
             resetSensors(bno, bmp, quaternions, accelerometer, refPressure);
+            Serial5.println("Begin Launch!");
             state++;
             break;
         case COUNTDOWN:
@@ -76,6 +82,9 @@ void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, int& state, double*
             break;
         case ABORT:
             break;
+    }
+    if (checkForCommands(rf95) == "RESET") { //check for commands from LoRa
+        state = 0; //reset state machine
     }
 }
 

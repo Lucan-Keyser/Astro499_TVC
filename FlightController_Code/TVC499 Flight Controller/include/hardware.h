@@ -35,14 +35,14 @@ void playAlertTone(int frequency, int duration);
  * @param separationTriggered Pointer to separation flag
  * @param launchTriggered Pointer to launch flag
  */
-void initializeHardware(CRGB* leds, bool* separationTriggered, bool* launchTriggered);
+void initializeHardware(bool& separationTriggered);
 
 /**
  * @brief Check pyro continuity and buzz if continuity is detected
  * @return True if continuity is detected, false otherwise
  */
 
-bool checkPyroContinuity();
+void checkPyroContinuity(double* continuity);
 
 /**
  * @brief Trigger separation sequence (fire pyro channel 2)

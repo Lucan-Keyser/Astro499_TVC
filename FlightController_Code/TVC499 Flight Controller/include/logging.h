@@ -10,7 +10,7 @@ void printToCSV();
 
 void sendToLog(RH_RF95* rf95);
 
-void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt);
+void logGlobalData (double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt, double* continuity);
 
 void logControlData (double* gimbal, double* servo);
 
