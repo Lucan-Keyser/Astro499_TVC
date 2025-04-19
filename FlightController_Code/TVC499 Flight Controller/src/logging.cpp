@@ -23,6 +23,7 @@ double gimbal[2] = {0.0, 0.0}; //pitch and yaw torque
 double servo[2] =  {0.0, 0.0};
 double state = 0;
 double cont[2] = {0.0,0.0}; // Initialize continuity array
+static unsigned long lastMessageTime = 0;
 
 void setupSerialDMA() {
   // Configure DMA for Serial5 TX
@@ -34,6 +35,8 @@ void setupSerialDMA() {
 
 void dmaCompleteCallback() {
   dmaActive = false;
+   // Add debug code here
+  Serial5.println("DMA transfer complete");
 }
 
 void sendSerialDMA(const uint8_t* data, size_t size) {
@@ -47,9 +50,14 @@ void sendSerialDMA(const uint8_t* data, size_t size) {
   serialTxDMA.sourceBuffer(serialBuffer, size);
   dmaActive = true;
   serialTxDMA.enable();
+
 }
 
 void printToCSV_DMA() {
+  if (millis() - lastMessageTime > 1000) { // every second
+    Serial5.println("DMA active status: " + String(dmaActive ? "Active" : "Inactive"));
+    lastMessageTime = millis();
+  }
   // Create a buffer to hold the formatted data
   char buffer[1024];
   int pos = 0;
@@ -100,7 +108,7 @@ void printToCSV_DMA() {
   // Print delta time
   pos += sprintf(buffer + pos, "%.6f,", dT);
 
-
+  pos += sprintf(buffer + pos, "\r\n"); // Add a newline at the end
   // End the line
   sendSerialDMA((uint8_t*)buffer, pos);
 }
