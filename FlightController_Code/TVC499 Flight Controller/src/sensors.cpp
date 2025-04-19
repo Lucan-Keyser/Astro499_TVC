@@ -15,7 +15,8 @@ double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
 bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
     bool success = true;
-    
+    Serial.println("Initializing sensors...");
+    resetIMU();
     // Initialize BNO085 IMU on Wire2
     Wire.begin();
     Wire.setClock(400000); // Set to  400kHz I2C speed
@@ -227,18 +228,30 @@ void returnData(sensors_event_t* event, double data[3]) {
 //NO NEED CURRENTLY, BUT MAY BE NEEDED LATER
 
 void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
-    // resetIMU();
+    resetIMU();
     zeroAltimeter(bmp, refPressure);
-    initializeQuaternions(bno, quaternions, accelerometer); 
+    if (!bno->enableReport(SH2_GYROSCOPE_CALIBRATED)) {
+        Serial.println("Could not enable gyroscope reports");
+    }
+    if (!bno->enableReport(SH2_ACCELEROMETER)){
+        Serial.println("Could not enable accelerometer reports");
+    }
+    initializeQuaternions(bno, quaternions, accelerometer);
 }
 void resetIMU() {
-    digitalWrite(BNO_RESET_PIN, HIGH);
-    delay(10);
+    Serial.println("Resetting IMU...");
+    // Reset the BNO085 IMU by toggling the reset pin   
+    pinMode(BNO_RESET_PIN, OUTPUT);
     digitalWrite(BNO_RESET_PIN, LOW);
-    delay(10);
+    delay(50);
     digitalWrite(BNO_RESET_PIN, HIGH);
-    delay(1000);
-    Serial.println("BNO RESET");
+    delay(50);
+    digitalWrite(BNO_RESET_PIN, LOW);
+    delay(100);
+    pinMode(BNO_RESET_PIN, INPUT); // Set the pin back to input mode
+    delay(2000); // Wait for the IMU to reset and stabilize
+    Serial.println("IMU reset complete.");
+
 }
 
 void zeroAltimeter(Adafruit_BMP3XX* bmp, double& refPressure) {

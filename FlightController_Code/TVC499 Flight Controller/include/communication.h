@@ -27,7 +27,7 @@
  * @param lastTelemetryTime Pointer to last telemetry time
  * @return True if initialization successful, false otherwise
  */
-bool initializeCommunication(RH_RF95* rf95, unsigned long* lastTelemetryTime);
+bool initializeCommunication(RH_RF95* rf95);
 
 /**
  * @brief Check for incoming LoRa commands
@@ -52,6 +52,6 @@ void readSerial(String* command, bool* separationTriggered, bool* launchTriggere
  * @param yawServo Pointer to yaw servo object
  * @param pitchServo Pointer to pitch servo object
  */
-void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], PWMServo* yawServo, PWMServo* pitchServo);
+void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle);
 
 #endif // COMMUNICATION_H

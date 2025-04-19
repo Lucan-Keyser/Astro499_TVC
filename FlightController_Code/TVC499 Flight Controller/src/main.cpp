@@ -21,6 +21,7 @@
 // Global objects and variables
 Adafruit_BNO08x bno;  // Updated to use BNO08x instead of BNO055
 sh2_SensorValue_t sensorValue;
+RH_RF95 rf95;  // LoRa radio object
 Adafruit_BMP3XX bmp;  // BMP390 altimeter
 PWMServo yawServo;  // Yaw servo
 PWMServo pitchServo;  // Pitch servo
@@ -38,6 +39,7 @@ double altData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude (m), pressure (P
 double dt = 0; 
 double prevTime = 0;// Current previous loop time
 // double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
+double lastSendTime = 0; // Last time telemetry was sent
 
 
 // Define the analog pins
@@ -72,11 +74,15 @@ void setup() {
     // digitalWrite(PYRO2_FIRE, LOW);
     yawServo.attach(yawServoPin);  // Attach yaw servo to pin
     pitchServo.attach(pitchServoPin);  // Attach pitch servo to pin
+    playAlertTone(5000, 2000);
+    initializeCommunication(&rf95); // Initialize LoRa communication
+    delay(500);  // Wait for LoRa to initialize
     initializeSensors(&bno, &bmp, quaternions, accelerometer, refPressure);// Initialize sensors
-    playAlertTone(1000, 200);
+    playAlertTone(1000, 2000);
 }
 
 void loop() {
+
   // Calculate time delta
   double currentTime = micros();
   dt = (currentTime - prevTime) / 1000000.0; // Convert microseconds to seconds
@@ -89,8 +95,11 @@ void loop() {
   stateMachine(&bno, &bmp, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure); // Update state machine
 
   control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
-  // logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt);
-  // sendToLog();
+  logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt);
+  if (millis() - lastSendTime > TELEMETRY_INTERVAL) {
+    sendToLog(&rf95);
+  }
+  lastSendTime = millis();
 
 
    // Update altitude data
@@ -98,8 +107,8 @@ void loop() {
   // Serial.print("Altitude: ");
   // Serial.println(altData[0]); // Print altitude
   // // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
-  // Serial.printf("dt: %.6f\n", dt);
+  Serial.printf("dt: %.6f\n", dt);
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", gyroRates[0], gyroRates[1], gyroRates[2]);
-  Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
+  // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
 }

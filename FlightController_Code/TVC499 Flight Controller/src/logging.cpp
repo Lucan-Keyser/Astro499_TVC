@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include "../include/logging.h"
+#include "../include/config.h"
+#include "../include/communication.h"
+#include <RH_RF95.h> // Include the header file for RH_RF95
 //have to change variable names to make them local to file
 double gyro[3] = {0.0, 0.0, 0.0}; //in radians/sec
 double quat[4] = {1, 0, 0, 0}; //Quaterinon vector
@@ -29,8 +32,11 @@ void logControlData (double* gim, double* serv) {
     for(int i = 0; i < 2; i++) servo[i] = serv[i];
 }
 
-void sendToLog () { //log all data that's been updated
-  printToCSV();
+void sendToLog (RH_RF95* rf95) { //log all data that's been updated
+  // printToCSV();
+  Serial.println("Sending data to LoRa...");
+  sendData(rf95, euler, alt, servo[0], servo[1]); //send data to LoRa
+  Serial.println("Data sent to LoRa!");
 }
 
 void printToCSV() {

@@ -62,7 +62,7 @@
 #define ABORT -1
 
 // Other Constants
-#define TELEMETRY_INTERVAL 50    // Send telemetry every 50ms
+#define TELEMETRY_INTERVAL 500    // Send telemetry every 50ms
 
 
 
