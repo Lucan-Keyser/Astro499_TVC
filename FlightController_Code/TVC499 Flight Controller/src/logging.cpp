@@ -91,6 +91,7 @@ void logControlData (double* gim, double* serv) {
   for(int i = 0; i < 2; i++) servo[i] = serv[i];
 }
 
+<<<<<<< HEAD
 void sendToLog (RH_RF95* rf95) { //log all data that's been updated
   sendData(rf95, euler, alt, servo[0], servo[1], cont[0], cont[1], dT, state, serialBoolean); //send data to LoRa
   // Serial.println("Data sent to LoRa!");
@@ -114,3 +115,69 @@ void updateSerialLog (RH_RF95* rf95, double setpoint) {
 //         }
 //     }
 // }
+=======
+bool sendToLog (RH_RF95* rf95) { //log all data that's been updated
+  // printToCSV();
+  return sendData(rf95, euler, alt, servo[0], servo[1]); //send data to LoRa, non-blocking
+}
+
+void printToCSV() {
+    // Print headers (optional, good for first row)
+    // Serial.println("GyroX,GyroY,GyroZ,QuatW,QuatX,QuatY,QuatZ,Yaw,Pitch,Roll,AccelX,AccelY,AccelZ,RefPressure,Altitude,Pressure,Temperature,DeltaTime");
+  
+    // Print gyro data (rad/s)
+    for(int i = 0; i < 3; i++) {
+      Serial.print(gyro[i]);
+      Serial.print(",");
+    }
+  
+    // Print quaternion data
+    for(int i = 0; i < 4; i++) {
+      Serial.print(quat[i]);
+      Serial.print(",");
+    }
+  
+    // Print Euler angles (degrees)
+    for(int i = 0; i < 3; i++) {
+      Serial.print(euler[i]);
+      Serial.print(",");
+    }
+  
+    // Print accelerometer data
+    for(int i = 0; i < 3; i++) {
+      Serial.print(accel[i]);
+      Serial.print(",");
+    }
+  
+    // Print reference pressure
+    Serial.print(refP);
+    Serial.print(",");
+  
+    // Print altimeter data
+    for(int i = 0; i < 3; i++) {
+      Serial.print(alt[i]);
+      Serial.print(",");
+    }
+
+    for(int i = 0; i < 2; i++) {
+      Serial.print(gimbal[i]);
+      Serial.print(",");
+    }
+
+    for(int i = 0; i < 2; i++) {
+      Serial.print(servo[i]);
+      Serial.print(",");
+    }
+
+    //print state
+    Serial.print(state);
+    Serial.print(",");
+   
+
+    // Print delta time
+    Serial.print(dT);
+  
+    // End the line
+    Serial.println();
+  }
+>>>>>>> main

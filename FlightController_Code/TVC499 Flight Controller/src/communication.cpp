@@ -28,27 +28,12 @@ struct TelemetryData {
 };
 
 bool initializeCommunication(RH_RF95* rf95) {
-    // // Initialize LoRa radio
-    // pinMode(RFM95_RST, OUTPUT);
-    // digitalWrite(RFM95_RST, LOW); // Reset the radio
-    // delay(10);
-    // digitalWrite(RFM95_RST, HIGH); // Release the reset
-    // // Allow time for the radio to initialize
-    // delay(10);
-    
     // Initialize RF95 module
     if (!rf95->init()) {
         Serial.println("RF95 LoRa init failed!");
         return false;
     }
     
-    // Configure radio parameters https://www.rfwireless-world.com/calculators/LoRa-Data-Rate-Calculator.html
-    // rf95->setFrequency(RF95_FREQ);
-    // rf95->setTxPower(20, false);  // 20 dBm power level, maximum power for LoRa (2 - 20 dBm)
-    // rf95->setCodingRate4(5); // Coding rate 4/5 for max data rate (5-8)
-    // rf95->setSpreadingFactor(6); // SF6 for max data rate (6-12)
-    // rf95->setSignalBandwidth(500000); // 500 kHz bandwidth for max data rate (125-500 kHz)
-
     rf95->setFrequency(RF95_FREQ);
     rf95->setTxPower(23, false);
     rf95->setSpreadingFactor(9);
@@ -59,9 +44,13 @@ bool initializeCommunication(RH_RF95* rf95) {
     return true;
 }
 
+<<<<<<< HEAD
 String checkForCommands(RH_RF95* rf95) {
     String command = ""; // Initialize command string
     //start timer
+=======
+void checkForCommands(RH_RF95* rf95, String* command) {
+>>>>>>> main
     unsigned long startTime = micros();
 
     // Check for incoming LoRa commands
@@ -80,11 +69,20 @@ String checkForCommands(RH_RF95* rf95) {
             Serial.println(receivedCommand);
             
             // Store other commands for processing
+<<<<<<< HEAD
             command = receivedCommand;
             //Serial.println("Received command: " + receivedCommand);
             }
         }
     return command; // Return the received command
+=======
+            *command = receivedCommand;
+        }
+    }
+    
+    unsigned long endTime = micros();
+    double dt = (endTime - startTime) / 1000000.0; // Convert microseconds to seconds
+>>>>>>> main
 }
 
 void readSerial(String* command, bool& separationTriggered, bool& launchTriggered) { 
@@ -110,6 +108,7 @@ void readSerial(String* command, bool& separationTriggered, bool& launchTriggere
     }
 }
 
+<<<<<<< HEAD
 void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serialBoolean) {
     // Check if enough time has passed since the last telemetry send
     if (millis() - lastTelemetryTime < TELEMETRY_INTERVAL) {
@@ -200,3 +199,40 @@ void sendDataNoDelay(RH_RF95* rf95, double eulerAngles[3], double altData[3], do
         lastTelemetryTime = millis(); // Update the last send time
 }
     
+=======
+bool sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle) {
+    // Don't use waitPacketSent - make it non-blocking
+    
+    // Check if RF95 is busy - don't try to send if it's still transmitting
+    if (rf95->mode() == RHGenericDriver::RHModeTx) {
+        // Radio is busy sending, don't attempt a new transmission
+        return false;
+    }
+    
+    // Create telemetry data structure
+    TelemetryData data;
+    data.roll = eulerAngles[0];
+    data.pitch = eulerAngles[1];
+    data.yaw = eulerAngles[2];
+    data.altitude = altData[0];
+    data.yawServo = yawServoAngle;
+    data.pitchServo = pitchServoAngle;
+
+    // Debug print (can be commented out in production for performance)
+    // Serial.print("Sending telemetry: Roll=");
+    // Serial.print(data.roll);
+    // Serial.print(", Pitch=");
+    // Serial.print(data.pitch);
+    // Serial.print(", Alt=");
+    // Serial.println(data.altitude);
+    
+    // Send the telemetry data without waiting
+    if (rf95->send((uint8_t*)&data, sizeof(TelemetryData))) {
+        // Packet queued for sending, but not waiting
+        return true;
+    } else {
+        Serial.println("Failed to queue telemetry data");
+        return false;
+    }
+}
+>>>>>>> main

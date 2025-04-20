@@ -6,8 +6,17 @@
 #include <RH_RF95.h>
 #include "ringbuffer.h"
 
+<<<<<<< HEAD
 // External declarations
 extern FlightDataBuffer flightLog;
+=======
+/**
+ * @brief Send logged data to telemetry (non-blocking)
+ * @param rf95 Pointer to RF95 LoRa radio object
+ * @return True if packet was queued successfully, false otherwise
+ */
+bool sendToLog(RH_RF95* rf95);
+>>>>>>> main
 
 
 // Initialize logging system
@@ -28,6 +37,10 @@ void updateSerialLog (RH_RF95* rf95, double setpoint);
 // Process serial commands
 void checkForLogCommands();
 
+<<<<<<< HEAD
 
 
 #endif // LOGGING_H
+=======
+#endif
+>>>>>>> main
