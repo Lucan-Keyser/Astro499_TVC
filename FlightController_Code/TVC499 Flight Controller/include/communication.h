@@ -33,19 +33,12 @@ extern double lastTelemetryTime;
 bool initializeCommunication(RH_RF95* rf95);
 
 /**
- * @brief Check for incoming LoRa commands
- * @param rf95 Pointer to RF95 LoRa radio object
- * @param command Pointer to command string
+* @brief Check for commands from LoRa radio
+* @param rf95 Pointer to RF95 LoRa radio object
+* @return Command string received from LoRa radio
  */
 String checkForCommands(RH_RF95* rf95);
 
-/**
- * @brief Process serial commands looking for "SEPARATE" or "LAUNCH"
- * @param command Pointer to command string
- * @param separationTriggered Pointer to separation flag
- * @param launchTriggered Pointer to launch flag
- */
-void readSerial(String* command, bool& separationTriggered, bool& launchTriggered);
 
 /**
  * @brief Send telemetry data over LoRa
@@ -56,6 +49,7 @@ void readSerial(String* command, bool& separationTriggered, bool& launchTriggere
  * @param pitchServo Pointer to pitch servo object
  */
 void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serailBoolean);
+
 
 void sendDataNoDelay(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serailBoolean);
 

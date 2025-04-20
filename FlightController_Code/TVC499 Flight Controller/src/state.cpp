@@ -38,13 +38,13 @@ void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int
         case DESCENT:
             triggerSeparation(separationTriggered); //trigger separation sequence
             updateSerialLog(rf95, 1);
-            flightLog.dumpToSerial(); //dump flight log to serial
+            dumpToSerial(); //dump flight log to serial
             updateSerialLog(rf95, 2);
             break;
         case ABORT:
             triggerSeparation(separationTriggered); //trigger separation sequence
             updateSerialLog(rf95, 1);
-            flightLog.dumpToSerial(); //dump flight log to serial
+            dumpToSerial(); //dump flight log to serial
             updateSerialLog(rf95, 2);
             break;
         case GROUND_IDLE:
@@ -72,9 +72,8 @@ void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int&
             }
             break;
         case COUNTDOWN:
-            if (accelerometer[0] <= -15) { //x acceleration, m/s^2
+            if (accelerometer[0] <= 15) { //if we are on the pad and we are not moving, we are ready to launch
                 startLaunch = millis();
-                digitalWrite(PYRO1_FIRE, LOW);
                 state++;
             }
             break;

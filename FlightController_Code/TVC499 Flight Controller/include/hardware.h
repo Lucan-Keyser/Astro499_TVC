@@ -13,14 +13,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
-// Pyro channel pins
-#define PYRO1_FIRE 28
-#define PYRO2_FIRE 29
-#define PYRO1_CONTINUITY 25
-#define PYRO2_CONTINUITY 26
-#define BUZZER_HIGH 4
-#define BUZZER_LOW 5
-#define SEPARATION_DURATION 4000  // 4 seconds
+
 
 /**
  * @brief Play alert tone using the buzzer

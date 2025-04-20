@@ -20,9 +20,6 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quate
     // Initialize BNO085 IMU on Wire2
     Wire.begin();
     Wire.setClock(400000); // Set to  400kHz I2C speed
-    // pinMode(BNO_RESET_PIN, OUTPUT);
-    // digitalWrite(BNO_RESET_PIN, LOW);
-    // In your initializeSensors function
     if (!bno->begin_I2C(0x4A, &Wire)) {
         Serial.println("No BNO085 sensor detected!");
         success = false;
@@ -30,12 +27,8 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quate
         Serial.println("BNO085 detected successfully!");
 
     }
-
-    
     Wire1.begin();
     Wire1.setClock(400000);
-        
-    // Initialize BMP390 using Wire1
     if (!bmp->begin_I2C(0x77, &Wire1)) {
         Serial.println("Trying alternative BMP390 address...");
         success = false;
@@ -43,21 +36,13 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quate
         Serial.println("BMP390 detected at address 0x77 on Wire1!");
     }
 
-    
-    
-    // Configure BMP sensor if successfully initialized
     if (success) {
-        //STILL NEED TO CHANGE/UPDATE 
-        // bmp->setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
-        // bmp->setPressureOversampling(BMP3_OVERSAMPLING_4X);
-        // bmp->setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3); // this is a infinite impulse response filter, this works by averaging the last 3 readings and smoothing the data
-        // bmp->setOutputDataRate(BMP3_ODR_50_HZ); // Set output data rate to 50 Hz
-        
         // Enable gyroscope reports on the BNO085
         if (!bno->enableReport(SH2_GYROSCOPE_CALIBRATED)) {
             Serial.println("Could not enable gyroscope reports");
             success = false;
         }
+        // Enable accelerometer reports on the BNO085
         if (!bno->enableReport(SH2_ACCELEROMETER)){
             Serial.println("Could not enable accelerometer reports");
             success = false;
@@ -65,6 +50,7 @@ bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quate
     }
 
     initializeQuaternions(bno, quaternions, accelerometer); 
+
     zeroAltimeter(bmp, refPressure);
     
     return success;
@@ -85,7 +71,7 @@ void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* a
             // Serial.println("lmao");
             //get accelerometer data
             if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
-                accelerometer[0] = sensorValue.un.accelerometer.x;
+                accelerometer[0] = sensorValue.un.accelerometer.x; //keeping gravity positive to keep stuff the same
                 accelerometer[1] = -sensorValue.un.accelerometer.y;
                 accelerometer[2] = sensorValue.un.accelerometer.z;
             }
@@ -149,9 +135,9 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, dou
         // Serial.println("lmao");
         //get accelerometer data
         if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
-            accelerometer[0] = sensorValue.un.accelerometer.x;
-            accelerometer[1] = -sensorValue.un.accelerometer.y;
-            accelerometer[2] = sensorValue.un.accelerometer.z;
+            accelerometer[0] = -sensorValue.un.accelerometer.x;
+            accelerometer[1] = sensorValue.un.accelerometer.y;
+            accelerometer[2] = -sensorValue.un.accelerometer.z;
             }
         }
     // Calculate time delta
@@ -248,7 +234,7 @@ void resetIMU() {
     delay(50);
     digitalWrite(BNO_RESET_PIN, LOW);
     delay(100);
-    pinMode(BNO_RESET_PIN, INPUT); // Set the pin back to input mode
+    pinMode(BNO_RESET_PIN, INPUT); // Set the pin back to input mode this is needed to avoid floating pin issues and let the bno085 reset itself with the internal pullup
     delay(2000); // Wait for the IMU to reset and stabilize
     Serial.println("IMU reset complete.");
 

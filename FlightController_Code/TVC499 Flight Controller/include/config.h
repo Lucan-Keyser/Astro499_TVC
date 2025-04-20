@@ -2,17 +2,17 @@
 #define CONFIG_H
 
 // Pyro Pins
-#define PYRO1_FIRE 28
-#define PYRO2_FIRE 29
-#define PYRO1_CONT A11  // continuity pyro 1
-#define PYRO2_CONT A12  // continuity pyro 2
+#define LAUNCH_PYRO_FIRE 28
+#define SEP_PYRO_FIRE 29
+#define LAUNCH_PYRO_CONT A11  // continuity pyro 1
+#define SEP_PYRO_CONT A12  // continuity pyro 2
+#define PYRO_DURATION 4000  // 4 seconds
 #define CONTINUITY_THRESHOLD 2 // Threshold for continuity detection (in volts)
 
 // Flight Parameters
 #define THRUST_TIME 3000         // Thrust duration in milliseconds
 #define APOGEE_DT 400            // Time interval for apogee detection
 #define DELTA_H 0.5              // Altitude threshold for apogee detection
-#define SEPARATION_DURATION 4000 // Separation duration in milliseconds
 #define MAX_TILT_ANGLE 60        // Maximum tilt angle in degrees before abort
 
 // Control Parameters
@@ -66,6 +66,10 @@
 
 // Other Constants
 #define TELEMETRY_INTERVAL 200  // Send serial data every 1000ms
+
+//Ring Buffer Size
+#define BUFFER_SIZE 2150  // 5 seconds at 1000Hz
+
 
 
 #endif // CONFIG_H

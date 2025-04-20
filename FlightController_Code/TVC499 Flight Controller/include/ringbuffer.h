@@ -1,3 +1,12 @@
+/** ringbuffer.h
+* ===========================================================
+* Name: Flight Data Ring Buffer Interface
+* Section: TVC499
+* Project: Flight Controller
+* Purpose: Data logging and storage for flight data
+* ===========================================================
+*/
+
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H
 
@@ -20,146 +29,46 @@ struct FlightDataEntry {
     double dt;               // time delta
 };
 
-// Ring buffer class
-class FlightDataBuffer {
-private:
-    const static int BUFFER_SIZE = 2150;  // 5 seconds at 1000Hz
-    FlightDataEntry buffer[BUFFER_SIZE];
-    volatile int writeIndex = 0;
-    volatile bool bufferFull = false;
-    volatile bool loggingActive = true;
 
-public:
-    FlightDataBuffer() {
-        writeIndex = 0;
-        bufferFull = false;
-        loggingActive = true;
-    }
 
-    // Store a data entry in the buffer
-    bool storeData(const FlightDataEntry& entry) {
-        if (bufferFull || !loggingActive) return false;
-        
-        buffer[writeIndex] = entry;
-        writeIndex++;
-        
-        if (writeIndex >= BUFFER_SIZE) {
-            bufferFull = true;
-            return false;
-        }
-        
-        return true;
-    }
+/**
+ * @brief Initialize the flight data buffer
+ */
+void initializeBuffer();
 
-    // Dump data to Serial5
-    void dumpToSerial() {
-        loggingActive = false;
-        
-        Serial.println("Dumping flight log to SD card...");
-        Serial5.println("FLIGHT_LOG_BEGIN");
-        delay(100);
-        
-        // Write CSV header
-        Serial5.println("timestamp,gx,gy,gz,q0,q1,q2,q3,roll,pitch,yaw,ax,ay,az,alt,press,temp,gimbal1,gimbal2,servo1,servo2,cont1,cont2,state,dt");
-        
-        // Write all entries
-        for (int i = 0; i < writeIndex; i++) {
-            FlightDataEntry& entry = buffer[i];
-            
-            // Timestamp
-            Serial5.print(entry.timestamp);
-            Serial5.print(",");
-            
-            // Gyro data
-            for (int j = 0; j < 3; j++) {
-                Serial5.print(entry.gyro[j], 6);
-                Serial5.print(",");
-            }
-            
-            // Quaternions
-            for (int j = 0; j < 4; j++) {
-                Serial5.print(entry.quaternions[j], 6);
-                Serial5.print(",");
-            }
-            
-            // Euler angles
-            for (int j = 0; j < 3; j++) {
-                Serial5.print(entry.eulerAngles[j], 6);
-                Serial5.print(",");
-            }
-            
-            // Accelerometer
-            for (int j = 0; j < 3; j++) {
-                Serial5.print(entry.accelerometer[j], 6);
-                Serial5.print(",");
-            }
-            
-            // Altitude, pressure, temperature
-            Serial5.print(entry.altitude, 6);
-            Serial5.print(",");
-            Serial5.print(entry.pressure, 6);
-            Serial5.print(",");
-            Serial5.print(entry.temperature, 6);
-            Serial5.print(",");
-            
-            // Servo positions
-            for (int j = 0; j < 2; j++) {
-                Serial5.print(entry.servoPositions[j], 6);
-                Serial5.print(",");
-            }
+/**
+ * @brief Store a data entry in the buffer
+ * @param entry Flight data entry to store
+ * @return True if successful, false if buffer full or logging inactive
+ */
+bool storeData(const FlightDataEntry& entry);
 
-            for (int j = 0; j < 2; j++) {
-                Serial5.print(entry.gimbalPositions[j], 6);
-                Serial5.print(",");
-            }
-            
-            // Continuity
-            for (int j = 0; j < 2; j++) {
-                Serial5.print(entry.continuity[j], 6);
-                Serial5.print(",");
-            }
-            
-            // State and dt
-            Serial5.print(entry.flightState);
-            Serial5.print(",");
-            Serial5.println(entry.dt, 6);
-            
-            // Add a small delay every 50 entries to prevent buffer overrun
-            if (i % 50 == 0) {
-                delay(10);
-            }
-        }
-        
-        Serial5.println("FLIGHT_LOG_END");
-        Serial.print("Flight log dumped: ");
-        Serial.print(writeIndex);
-        Serial.println(" entries");
-        
-        // Reset for next flight if needed
-        resetBuffer();
-    }
+/**
+ * @brief Dump all buffer data to Serial5
+ */
+void dumpToSerial();
 
-    // Reset the buffer for next flight
-    void resetBuffer() {
-        writeIndex = 0;
-        bufferFull = false;
-        loggingActive = true;
-    }
+/**
+ * @brief Reset the buffer for a new flight
+ */
+void resetBuffer();
 
-    // Check if buffer is full
-    bool isFull() {
-        return bufferFull;
-    }
+/**
+ * @brief Check if buffer is full
+ * @return True if buffer is full, false otherwise
+ */
+bool isBufferFull();
 
-    // Get number of entries stored
-    int getEntryCount() {
-        return writeIndex;
-    }
-    
-    // Pause/resume logging
-    void setLogging(bool enable) {
-        loggingActive = enable;
-    }
-};
+/**
+ * @brief Get number of entries stored
+ * @return Number of entries in buffer
+ */
+int getEntryCount();
+
+/**
+ * @brief Enable or disable logging
+ * @param enable True to enable logging, false to disable
+ */
+void setLogging(bool enable);
 
 #endif // RINGBUFFER_H

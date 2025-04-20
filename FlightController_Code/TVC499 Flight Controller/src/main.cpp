@@ -12,14 +12,6 @@
 #include "../include/config.h"
 #include "../include/ringbuffer.h"
 
-
-// Builtin LED for basic testing
-#define LED_BUILTIN 13
-#define BLINK_INTERVAL 500  // Blink every 500ms
-
-#define PYRO1_FIRE 28
-#define PYRO2_FIRE 29
-
 // Global objects and variables
 Adafruit_BNO08x bno;  // Updated to use BNO08x instead of BNO055
 sh2_SensorValue_t sensorValue;
@@ -40,80 +32,57 @@ double altData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude (m), pressure (P
 double continuity[2] = {0.0, 0.0}; // Initialize continuity array
 double dt = 0; 
 double prevTime = 0;// Current previous loop time
-// double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
-double lastSendTime = 0; // Last time telemetry was sent
+double lastSendTime = 0; 
 double eventStartTime = millis();
 
+bool launchTriggered = false; // Launch trigger flag
+bool separationTriggered = false; // Separation trigger flag
 
-// Define the analog pins
-const int analogPin1 = 25;  // A11 on Teensy
-const int analogPin2 = 26;  // A12 on Teensy
-
-
-// Variables to store the analog values
-int analogValue1 = 0;
-int analogValue2 = 0;
-
-// Variables to store the voltage values
-float voltage1 = 0.0;
-float voltage2 = 0.0;
-
-bool separationTriggered = false; // Flag for separation command
-bool launchTriggered = false; // Flag for launch command
 
 void setup() {
-    // Initialize serial communication
     Serial.begin(115200);
     Serial5.begin(115200);
-    // delay(2000);  // Wait for serial to initialize
-    prevTime = micros();
-    // Serial.println("Teensy Analog Voltage Reader");
-    // Serial.println("Reading from pins 25(A11) and 26(A12)");
 
-    //   // Initialize Pyro Pins
-    // pinMode(PYRO1_FIRE, OUTPUT);
-    // pinMode(PYRO2_FIRE, OUTPUT);
-    // digitalWrite(PYRO1_FIRE, LOW);
-    // pinMode(BNO_RESET_PIN, OUTPUT);
-    // delay(1000);
-    // digitalWrite(PYRO2_FIRE, LOW);
+    prevTime = micros();
+
+    initializeBuffer();
+    
     initializeLogging();
 
     initializeHardware(separationTriggered, launchTriggered); // Initialize hardware components
+
     pitchServo.attach(PITCH_SERVO_PIN);  // Attach pitch servo to pin J2
     yawServo.attach(YAW_SERVO_PIN);  // Attach yaw servo to pin J1
-    // playAlertTone(5000, 2000);
+
     initializeCommunication(&rf95); // Initialize LoRa communication
     delay(100);  // Wait for LoRa to initialize
+
     initializeSensors(&bno, &bmp, quaternions, accelerometer, refPressure);// Initialize sensors
-    playAlertTone(1000, 2000);
+
+    playAlertTone(1000, 2000); // Play alert tone for 2 seconds let the user know we are initializing
+
     double gimbalInit[2] = {0.0, 0.0}; // Initialize gimbal position
+
     moveServos(gimbalInit, pitchServo, yawServo); // Initialize gimbal position
 }
 
 void loop() {
-  // Calculate time delta
   double currentTime = micros();
-  dt = (currentTime - prevTime) / 1000000.0; // Convert microseconds to seconds
+  dt = (currentTime - prevTime) / 1000000.0; 
   prevTime = currentTime;
 
-  checkPyroContinuity(continuity); // Check pyro continuity
-  // Update IMU data
+  checkPyroContinuity(continuity); 
+
   updateIMU(&bno, gyroRates, quaternions, eulerAngles, accelerometer, dt);
 
-  //control attitude
-  control(quaternions, gyroRates, pitchServo, yawServo); // Control servos based on IMU data
-  stateMachine(&bno, &bmp, &rf95, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure, launchTriggered, separationTriggered); // Update state machine
+  stateMachine(&bno, &bmp, &rf95, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure, launchTriggered, separationTriggered); 
 
-  logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt, continuity);
+  if(STATE == 3) { // Ascending state hit the acceleration threshold
+    control(quaternions, gyroRates, pitchServo, yawServo);
+  }
+
+  logGlobalData(gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt, continuity);
   sendToLog(&rf95);
 
-  checkForCommands(&rf95); // Check for incoming LoRa commands
-  // Check for log commands (DUMP, RESET
-  
-  // Serial.printf("dt: %.6f\n", dt);
-
-  // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
-  // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", gyroRates[0], gyroRates[1], gyroRates[2]);
-  // Serial.printf("Roll: %.6f, Pitch: %.6f, Yaw: %.6f\n", eulerAngles[0], eulerAngles[1], eulerAngles[2]);
+  checkForCommands(&rf95); 
 }
