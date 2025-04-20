@@ -1,0 +1,20 @@
+# Ignore image zip files
+*.zip
+
+# Specific large files causing issues
+GUI_GSEv2/windows-amd64 (2).zip
+GUI_GSEv2/windows-amd64.zip
+GUI_GSEv2/windows-amd64/java/lib/modules
+
+# General rules for large files
+GUI_GSEv2/windows-amd64/
+GUI_GSEv2/windows-amd64/**
+GUI_GSEv2/*.zip
+
+
+
+# Additional large files to ignore
+GUI_GSEv2/data/flight_data_*.csv
+GUI_GSEv2/windows-amd64/data/rocket.obj
+*.obj
+
