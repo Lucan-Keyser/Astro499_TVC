@@ -10,6 +10,8 @@
 #include "../include/state.h"
 #include "../include/logging.h"
 #include "../include/config.h"
+#include "../include/ringbuffer.h"
+
 
 // Builtin LED for basic testing
 #define LED_BUILTIN 13
@@ -40,6 +42,7 @@ double dt = 0;
 double prevTime = 0;// Current previous loop time
 // double gyroOffsets[3] = {0.0, 0.0, 0.0};  // Gyro offsets for calibration
 double lastSendTime = 0; // Last time telemetry was sent
+double eventStartTime = millis();
 
 
 // Define the analog pins
@@ -63,7 +66,6 @@ void setup() {
     Serial.begin(115200);
     Serial5.begin(115200);
     // delay(2000);  // Wait for serial to initialize
-    setupSerialDMA(); // Set up DMA for Serial5 TX
     prevTime = micros();
     // Serial.println("Teensy Analog Voltage Reader");
     // Serial.println("Reading from pins 25(A11) and 26(A12)");
@@ -75,7 +77,9 @@ void setup() {
     // pinMode(BNO_RESET_PIN, OUTPUT);
     // delay(1000);
     // digitalWrite(PYRO2_FIRE, LOW);
-    initializeHardware(separationTriggered);
+    initializeLogging();
+
+    initializeHardware(separationTriggered, launchTriggered); // Initialize hardware components
     pitchServo.attach(PITCH_SERVO_PIN);  // Attach pitch servo to pin J2
     yawServo.attach(YAW_SERVO_PIN);  // Attach yaw servo to pin J1
     // playAlertTone(5000, 2000);
@@ -83,33 +87,31 @@ void setup() {
     delay(100);  // Wait for LoRa to initialize
     initializeSensors(&bno, &bmp, quaternions, accelerometer, refPressure);// Initialize sensors
     playAlertTone(1000, 2000);
+    double gimbalInit[2] = {0.0, 0.0}; // Initialize gimbal position
+    moveServos(gimbalInit, pitchServo, yawServo); // Initialize gimbal position
 }
 
 void loop() {
-
   // Calculate time delta
   double currentTime = micros();
   dt = (currentTime - prevTime) / 1000000.0; // Convert microseconds to seconds
   prevTime = currentTime;
+
   checkPyroContinuity(continuity); // Check pyro continuity
   // Update IMU data
   updateIMU(&bno, gyroRates, quaternions, eulerAngles, accelerometer, dt);
 
   //control attitude
-  stateMachine(&bno, &bmp, &rf95, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure); // Update state machine
+  control(quaternions, gyroRates, pitchServo, yawServo); // Control servos based on IMU data
+  stateMachine(&bno, &bmp, &rf95, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure, launchTriggered, separationTriggered); // Update state machine
 
-  control(quaternions, gyroRates, pitchServo, yawServo); // Update IMU data
   logGlobalData (gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt, continuity);
   sendToLog(&rf95);
-  // double gimbal[2] =  {0.0, 0.0};
-  // moveServos(gimbal, pitchServo, yawServo); //move servos to the calculated angles
 
-   // Update altitude data
-
-  // Serial.print("Altitude: ");
-  // Serial.println(altData[0]); // Print altitude
-  // // initializeQuaternions(&bno, quaternions, accelerometer);  //one second
-  Serial.printf("dt: %.6f\n", dt);
+  checkForCommands(&rf95); // Check for incoming LoRa commands
+  // Check for log commands (DUMP, RESET
+  
+  // Serial.printf("dt: %.6f\n", dt);
 
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", accelerometer[0], accelerometer[1], accelerometer[2]);
   // Serial.printf("x: %.6f, y: %.6f, z: %.6f\n", gyroRates[0], gyroRates[1], gyroRates[2]);

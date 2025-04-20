@@ -8,7 +8,8 @@
 #include <utility/imumaths.h>
 #include <RH_RF95.h>
 
-void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure);
+
+void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure, bool& launchTriggered, bool& separationTriggered);
 
 void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int& state, double* accelerometer, double* eulerAngles, double* altData, double* quaternions, double& refPressure);
 

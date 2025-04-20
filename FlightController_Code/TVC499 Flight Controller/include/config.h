@@ -34,9 +34,9 @@
 #define APOGEE_DETECTION_COUNT 10 // Number of samples for apogee detection
 #define APOGEE_DETECTION_DELAY 10 // Delay between apogee detection samples in milliseconds
 #define BNO_RESET_PIN 15 // Pin for BNO reset
-#define PITCH_SERVO_PIN 8 // Pin for pitch servo
-#define YAW_SERVO_PIN 9 // Pin for yaw servo
-
+#define PITCH_SERVO_PIN 8 // Pin for pitch servo J2
+#define YAW_SERVO_PIN 9 // Pin for yaw servo J1
+#define COUNTDOWN_TIME 3000 // Countdown time in milliseconds
 
 
 
@@ -61,11 +61,11 @@
 #define ASCENT 3
 #define UNPOWERED_ASCENT 4
 #define DESCENT 5
-#define ABORT -1
+#define ABORT 6
+#define GROUND_IDLE 7
 
 // Other Constants
-#define TELEMETRY_INTERVAL 200    // Send telemetry every 200ms
-
+#define TELEMETRY_INTERVAL 200  // Send serial data every 1000ms
 
 
 #endif // CONFIG_H

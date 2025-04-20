@@ -35,7 +35,7 @@ void playAlertTone(int frequency, int duration);
  * @param separationTriggered Pointer to separation flag
  * @param launchTriggered Pointer to launch flag
  */
-void initializeHardware(bool& separationTriggered);
+void initializeHardware(bool& separationTriggered, bool& launchTriggered);
 
 /**
  * @brief Check pyro continuity and buzz if continuity is detected
@@ -49,14 +49,16 @@ void checkPyroContinuity(double* continuity);
  * @param leds Pointer to LED array
  * @param separationTriggered Pointer to separation flag
  */
-void triggerSeparation(bool* separationTriggered);
+void triggerSeparation(bool& separationTriggered);
 
 
 /**
  * @brief Trigger launch sequence (fire pyro channels 1)
  * @param launchTriggered Pointer to launch flag
  */
-void triggerLaunch(bool* launchTriggered);
+void triggerLaunch(bool& launchTriggered);
+
+void countDownMusic();
 
 
 #endif // HARDWARE_H

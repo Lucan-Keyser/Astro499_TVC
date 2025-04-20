@@ -10,6 +10,8 @@
 #include "../include/hardware.h"
 #include "../include/config.h"
 
+bool countDownDone = false; // Flag for countdown completion
+
 void playAlertTone(int frequency, int duration) {
     unsigned long period = 1000000 / frequency; // Period in microseconds
     unsigned long halfPeriod = period / 2; // Half period in microseconds
@@ -33,7 +35,8 @@ void playAlertTone(int frequency, int duration) {
     digitalWrite(BUZZER_LOW, LOW);
 }
 
-void initializeHardware(bool& separationTriggered) {
+void initializeHardware(bool& separationTriggered, bool& launchTriggered) {
+    // Initialize LED strip (if used)
     // Initialize separation state
     separationTriggered = false;
     
@@ -61,7 +64,8 @@ void initializeHardware(bool& separationTriggered) {
 }
 
 void checkPyroContinuity(double* continuity) {
- 
+    continuity[0] = 0.0; // Reset continuity values
+    continuity[1] = 0.0; // Reset continuity values
     // Check continuity of pyro channels 
     int pyro1Value = analogRead(A11); // Read analog value from pyro 1 continuity pin
     int pyro2Value = analogRead(A12); // Read analog value from pyro 2 continuity pin
@@ -70,29 +74,29 @@ void checkPyroContinuity(double* continuity) {
     if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
         // Serial.println("Continuity detected on pyro channel 1.");
         continuity[0] = 1.0; // Set continuity to 1.0 for pyro channel 1
-    } else if (pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
+    }
+    if (pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) {
         // Serial.println("Continuity detected on pyro channel 1.");
         continuity[1] = 1.0; // Set continuity to 0.0 for pyro channel 2
     } 
 }
 
-void triggerSeparation(bool* separationTriggered) {
+void triggerSeparation(bool& separationTriggered) {
     
     // Fire pyro channels
     digitalWrite(PYRO2_FIRE, HIGH);
     
     // Start separation timer
     unsigned long separationStartTime = millis();
-    *separationTriggered = true;
+    separationTriggered = true;
 
     Serial.println("Separation triggered!");
 
     // Play alert tone for separation
-    playAlertTone(3000, 4000); // Play tone at 3000 Hz for 500 ms
+    // playAlertTone(3000, 4000); // Play tone at 3000 Hz for 500 ms
 
-    if (*separationTriggered && (millis() - separationStartTime >= SEPARATION_DURATION)) {
+    if (separationTriggered && (millis() - separationStartTime >= SEPARATION_DURATION)) {
         digitalWrite(PYRO2_FIRE, LOW);
-        
         Serial.println("Separation sequence completed");
     }
     else {
@@ -102,20 +106,20 @@ void triggerSeparation(bool* separationTriggered) {
     
 }
 
-void triggerLaunch(bool* launchTriggered) {
+void triggerLaunch(bool& launchTriggered) {
     // Fire pyro channel 1
     digitalWrite(PYRO1_FIRE, HIGH);
     
     // Start launch timer
     unsigned long launchStartTime = millis();
-    *launchTriggered = true;
+    launchTriggered = true;
     
     Serial.println("Launch triggered!");
     
     // Play alert tone for launch
-    playAlertTone(4000, 4000); // Play tone at 4000 Hz for 500 ms
+    // playAlertTone(4000, 4000); // Play tone at 4000 Hz for 500 ms
     
-    if (*launchTriggered && (millis() - launchStartTime >= SEPARATION_DURATION)) {
+    if (launchTriggered && (millis() - launchStartTime >= SEPARATION_DURATION)) {
         digitalWrite(PYRO1_FIRE, LOW);
         
         Serial.println("Launch sequence completed");
@@ -123,5 +127,17 @@ void triggerLaunch(bool* launchTriggered) {
     else {
         Serial.println("Launch sequence in progress");
     }
+}
+
+void countDownMusic() {
+    if (countDownDone) return; // If countdown is already done, exit function
+    // Play countdown music
+    else {
+        for (int i = 0; i < 4; i++) {
+            playAlertTone(2000 + i * 500, COUNTDOWN_TIME / 4); // Play tone with increasing frequency 2000, 2500, 3000, 3500 hz
+        }
+        countDownDone = true; // Set countdown done flag to true
+    }
+    
 }
 

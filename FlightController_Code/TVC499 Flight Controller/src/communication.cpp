@@ -24,6 +24,7 @@ struct TelemetryData {
   float continuity2;
   float dt;
   float state;
+  float serialBoolean; // Add serial boolean to telemetry data
 };
 
 bool initializeCommunication(RH_RF95* rf95) {
@@ -86,7 +87,7 @@ String checkForCommands(RH_RF95* rf95) {
     return command; // Return the received command
 }
 
-void readSerial(String* command, bool* separationTriggered, bool* launchTriggered) { 
+void readSerial(String* command, bool& separationTriggered, bool& launchTriggered) { 
     // Check for incoming serial commands
     if (Serial.available()) {
         // Read command from Serial
@@ -109,7 +110,7 @@ void readSerial(String* command, bool* separationTriggered, bool* launchTriggere
     }
 }
 
-void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state) {
+void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serialBoolean) {
     // Check if enough time has passed since the last telemetry send
     if (millis() - lastTelemetryTime < TELEMETRY_INTERVAL) {
         return; // Not enough time has passed, skip sending telemetry
@@ -130,13 +131,19 @@ void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pi
 
         data.yawServo = yawServoAngle;
 
-        data.continuity1 =  continuity1; // Check pyro continuity
+        data.continuity1 =  continuity1;
 
-        data.continuity2 =  continuity2; // Check pyro continuity
+        data.continuity2 =  continuity2;
 
         data.dt = dt;
         
         data.state = state;
+
+        data.serialBoolean = serialBoolean; // Add serial boolean to telemetry data
+
+
+
+        
 
         // Send the telemetry data
         if (rf95->send((uint8_t*)&data, sizeof(TelemetryData))) {
@@ -150,3 +157,46 @@ void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pi
     }
     
 }
+
+void sendDataNoDelay(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serialBoolean) {
+    // Check if enough time has passed since the last telemetry send
+        // Serial.println("Telemetry data sending !");
+
+        // Create telemetry data structure
+        TelemetryData data;
+        data.roll = eulerAngles[0];
+        data.pitch = eulerAngles[1];
+
+        data.yaw = eulerAngles[2];
+
+        data.altitude = altData[0];
+
+        data.pitchServo = pitchServoAngle;
+
+        data.yawServo = yawServoAngle;
+
+        data.continuity1 =  continuity1;
+
+        data.continuity2 =  continuity2;
+
+        data.dt = dt;
+        
+        data.state = state;
+
+        data.serialBoolean = serialBoolean; // Add serial boolean to telemetry data
+
+
+
+        
+
+        // Send the telemetry data
+        if (rf95->send((uint8_t*)&data, sizeof(TelemetryData))) {
+            // Serial.println("Telemetry data sent!");
+        } else {
+            Serial.println("Failed to send telemetry data!");
+        }
+
+        // Update the last send time
+        lastTelemetryTime = millis(); // Update the last send time
+}
+    
