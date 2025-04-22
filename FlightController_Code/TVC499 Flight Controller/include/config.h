@@ -65,7 +65,7 @@
 #define GROUND_IDLE 7
 
 // Other Constants
-#define TELEMETRY_INTERVAL 200  // Send serial data every 1000ms
+#define TELEMETRY_INTERVAL 200  // Send serial data every 200ms
 
 //Ring Buffer Size
 #define BUFFER_SIZE 2150  // 5 seconds at 1000Hz

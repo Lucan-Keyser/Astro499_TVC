@@ -72,7 +72,7 @@ void updateState(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int&
             }
             break;
         case COUNTDOWN:
-            if (accelerometer[0] <= 15) { //if we are on the pad and we are not moving, we are ready to launch
+            if (accelerometer[0] <= LAUNCH_ACCELERATION) { //if we are on the pad and we are not moving, we are ready to launch
                 startLaunch = millis();
                 state++;
             }

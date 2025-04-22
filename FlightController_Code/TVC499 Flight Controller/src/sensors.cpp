@@ -135,9 +135,9 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, dou
         // Serial.println("lmao");
         //get accelerometer data
         if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
-            accelerometer[0] = -sensorValue.un.accelerometer.x;
-            accelerometer[1] = sensorValue.un.accelerometer.y;
-            accelerometer[2] = -sensorValue.un.accelerometer.z;
+            accelerometer[0] = sensorValue.un.accelerometer.x;
+            accelerometer[1] = -sensorValue.un.accelerometer.y;
+            accelerometer[2] = sensorValue.un.accelerometer.z;
             }
         }
     // Calculate time delta
