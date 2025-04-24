@@ -1,13 +1,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// Pyro Pins
+//                                     Pyro Config
+//-----------------------------------------------------------------------------------
 #define LAUNCH_PYRO_FIRE 28
 #define SEP_PYRO_FIRE 29
 #define LAUNCH_PYRO_CONT A11  // continuity pyro 1
 #define SEP_PYRO_CONT A12  // continuity pyro 2
 #define PYRO_DURATION 4000  // 4 seconds
 #define CONTINUITY_THRESHOLD 2 // Threshold for continuity detection (in volts)
+//-----------------------------------------------------------------------------------
+
 
 // Flight Parameters
 #define THRUST_TIME 3000         // Thrust duration in milliseconds
@@ -66,6 +69,7 @@
 
 // Other Constants
 #define TELEMETRY_INTERVAL 200  // Send serial data every 200ms
+#define REF_PRESSURE_HPA 0  // Default reference pressure in hPa
 
 //Ring Buffer Size
 #define BUFFER_SIZE 2150  // 5 seconds at 1000Hz

@@ -16,12 +16,42 @@
 #include <Adafruit_BNO08x.h>
 #include <Adafruit_BMP3XX.h>
 #include <utility/imumaths.h>
+#include "../include/config.h"
 
+class IMU {
+private:
+    Adafruit_BNO08x* bno;
+    Adafruit_BMP3XX* bmp;
+    double quaternions[4];
+    double accelerometer[3];
+    double gyroOffsets[3];
 
-// Constants
-#define REF_PRESSURE_HPA 0  // Default reference pressure in hPa
+public:
+    IMU(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp);
+    bool initialize();
+    void updateIMU(double dt);
+    void resetIMU();
 
+    //utilize getter functions to get data from the class help with encapsulation
+    double* getQuaternions() { return quaternions; }
+    double* getAccelerometer() { return accelerometer; }
+    double* getGyroOffsets() { return gyroOffsets; }
+};
 
+class Altimeter {
+private:
+    Adafruit_BMP3XX* bmp;
+    double refPressure;
+    double altData[3];
+public:
+    Altimeter(Adafruit_BMP3XX* bmp);
+    bool initialize();
+    bool updateAltimeter();
+    void zeroAltimeter();
+
+    double* getAltData() { return altData; }
+    double getRefPressure() { return refPressure; }
+};
 
 /**
  * @brief Initialize IMU and altimeter sensors
