@@ -12,8 +12,6 @@ class Control {
     private:
         SensorSystem& sensors; // Sensor system object
         Actuators& actuators; // Actuator system object
-        PWMServo* pitchServo; // Pointer to pitch servo object
-        PWMServo* yawServo; // Pointer to yaw servo object
 
         double* quaternions[4];
         double* omega[3]; // Gyroscope rates [x, y, z]
