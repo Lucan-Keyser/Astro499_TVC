@@ -38,13 +38,23 @@ void stateMachine(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, RH_RF95* rf95, int
         case DESCENT:
             triggerSeparation(separationTriggered); //trigger separation sequence
             updateSerialLog(rf95, 1);
-            dumpToSerial(); //dump flight log to serial
+            // Use the new high-speed SD writing function instead of dumpToSerial
+            if (dumpToSD()) {
+                updateSerialLog(rf95, 2); // Update serial log to indicate SD dump finished
+            } else {
+                updateSerialLog(rf95, 3); // Update serial log to indicate SD dump failed
+            }
             updateSerialLog(rf95, 2);
             break;
         case ABORT:
             triggerSeparation(separationTriggered); //trigger separation sequence
             updateSerialLog(rf95, 1);
-            dumpToSerial(); //dump flight log to serial
+                        // Use the new high-speed SD writing function instead of dumpToSerial
+            if (dumpToSD()) {
+                updateSerialLog(rf95, 2); // Update serial log to indicate SD dump finished
+            } else {
+                updateSerialLog(rf95, 3); // Update serial log to indicate SD dump failed
+            }
             updateSerialLog(rf95, 2);
             break;
         case GROUND_IDLE:

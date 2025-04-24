@@ -39,7 +39,6 @@ void logFlightData() {
     // Copy all flight data
     memcpy(entry.gyro, gyro, sizeof(entry.gyro));
     memcpy(entry.quaternions, quat, sizeof(entry.quaternions));
-    memcpy(entry.eulerAngles, euler, sizeof(entry.eulerAngles));
     memcpy(entry.accelerometer, accel, sizeof(entry.accelerometer));
     memcpy(entry.servoPositions, servo, sizeof(entry.servoPositions));
     memcpy(entry.gimbalPositions, gimbal, sizeof(entry.gimbalPositions));
@@ -47,8 +46,6 @@ void logFlightData() {
     
     // Individual values
     entry.altitude = alt[0];
-    entry.pressure = alt[1];
-    entry.temperature = alt[2];
     entry.flightState = state;
     entry.dt = dT;
     

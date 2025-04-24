@@ -19,7 +19,6 @@
 #define RFM95_RST 23
 #define RFM95_INT 1
 #define RF95_FREQ 915.0
-#define TELEMETRY_INTERVAL 50  // Send telemetry every 50ms
 
 extern double lastTelemetryTime;
 

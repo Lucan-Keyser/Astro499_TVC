@@ -1,12 +1,3 @@
-/** ringbuffer.h
-* ===========================================================
-* Name: Flight Data Ring Buffer Interface
-* Section: TVC499
-* Project: Flight Controller
-* Purpose: Data logging and storage for flight data
-* ===========================================================
-*/
-
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H
 
@@ -17,11 +8,8 @@ struct FlightDataEntry {
     unsigned long timestamp;  // milliseconds since boot
     double gyro[3];          // gyro readings
     double quaternions[4];   // orientation
-    double eulerAngles[3];   // roll, pitch, yaw
     double accelerometer[3]; // acceleration values
     double altitude;         // current altitude
-    double pressure;         // pressure reading
-    double temperature;      // temperature reading
     double servoPositions[2]; // servo positions
     double gimbalPositions[2];
     double continuity[2];    // pyro continuity readings
@@ -29,7 +17,8 @@ struct FlightDataEntry {
     double dt;               // time delta
 };
 
-
+// Buffer size
+#define BUFFER_SIZE 2000  // 5 seconds at 1000Hz
 
 /**
  * @brief Initialize the flight data buffer
@@ -47,6 +36,12 @@ bool storeData(const FlightDataEntry& entry);
  * @brief Dump all buffer data to Serial5
  */
 void dumpToSerial();
+
+/**
+ * @brief Dump buffer data to SD card via SDIO for maximum speed
+ * @return True if successful, false if writing failed
+ */
+bool dumpToSD();
 
 /**
  * @brief Reset the buffer for a new flight

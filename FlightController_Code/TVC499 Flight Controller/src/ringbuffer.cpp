@@ -9,12 +9,20 @@
 
 #include "../include/ringbuffer.h"
 #include "../include/config.h"
+#include <SdFat.h>
+
+#define SD_CONFIG SdioConfig(FIFO_SDIO)
 
 // Global buffer and state variables
 static FlightDataEntry buffer[BUFFER_SIZE];
 static volatile int writeIndex = 0;
 static volatile bool bufferFull = false;
 static volatile bool loggingActive = true;
+
+// SD card objects
+SdFs sd;
+FsFile dataFile;
+char filename[32];
 
 void initializeBuffer() {
     writeIndex = 0;
@@ -36,93 +44,53 @@ bool storeData(const FlightDataEntry& entry) {
     return true;
 }
 
-void dumpToSerial() {
-    loggingActive = false;
+bool dumpToSD() {
+    SdFs sd;
+    FsFile dataFile;
+    char filename[32];
     
-    Serial.println("Dumping flight log to SD card...");
-    Serial5.println("FLIGHT_LOG_BEGIN");
-    delay(100);
-    
-    // Write CSV header
-    Serial5.println("timestamp,gx,gy,gz,q0,q1,q2,q3,roll,pitch,yaw,ax,ay,az,alt,press,temp,gimbal1,gimbal2,servo1,servo2,cont1,cont2,state,dt");
-    
-    // Write all entries
-    for (int i = 0; i < writeIndex; i++) {
-        FlightDataEntry& entry = buffer[i];
-        
-        // Timestamp
-        Serial5.print(entry.timestamp);
-        Serial5.print(",");
-        
-        // Gyro data
-        for (int j = 0; j < 3; j++) {
-            Serial5.print(entry.gyro[j], 6);
-            Serial5.print(",");
-        }
-        
-        // Quaternions
-        for (int j = 0; j < 4; j++) {
-            Serial5.print(entry.quaternions[j], 6);
-            Serial5.print(",");
-        }
-        
-        // Euler angles
-        for (int j = 0; j < 3; j++) {
-            Serial5.print(entry.eulerAngles[j], 6);
-            Serial5.print(",");
-        }
-        
-        // Accelerometer
-        for (int j = 0; j < 3; j++) {
-            Serial5.print(entry.accelerometer[j], 6);
-            Serial5.print(",");
-        }
-        
-        // Altitude, pressure, temperature
-        Serial5.print(entry.altitude, 6);
-        Serial5.print(",");
-        Serial5.print(entry.pressure, 6);
-        Serial5.print(",");
-        Serial5.print(entry.temperature, 6);
-        Serial5.print(",");
-        
-        // Servo positions
-        for (int j = 0; j < 2; j++) {
-            Serial5.print(entry.gimbalPositions[j], 6);
-            Serial5.print(",");
-        }
-        
-        for (int j = 0; j < 2; j++) {
-            Serial5.print(entry.servoPositions[j], 6);
-            Serial5.print(",");
-        }
-        
-        // Continuity
-        for (int j = 0; j < 2; j++) {
-            Serial5.print(entry.continuity[j], 6);
-            Serial5.print(",");
-        }
-        
-        // State and dt
-        Serial5.print(entry.flightState);
-        Serial5.print(",");
-        Serial5.println(entry.dt, 6);
-        
-        // Add a small delay every 50 entries to prevent buffer overrun
-        if (i % 50 == 0) {
-            delay(10);
-        }
+    // Initialize SD card
+    if (!sd.begin(SdioConfig(FIFO_SDIO))) {
+        Serial.println("SD initialization failed!");
+        return false;
     }
     
-    Serial5.println("FLIGHT_LOG_END");
-    Serial.print("Flight log dumped: ");
-    Serial.print(writeIndex);
-    Serial.println(" entries");
+    sprintf(filename, "FLIGHT_%lu.CSV", millis());
+    if (!dataFile.open(filename, O_WRITE | O_CREAT)) {
+        Serial.println("Failed to create file!");
+        return false;
+    }
     
-    // Reset for next flight if needed
-    resetBuffer();
+    // Write CSV header
+    dataFile.println("timestamp,gx,gy,gz,q0,q1,q2,q3,ax,ay,az,alt,gimbal1,gimbal2,servo1,servo2,cont1,cont2,state,dt");
+    
+    // Use a small 512-byte static buffer (one SD card block)
+    char lineBuffer[512];
+    
+    // Process all entries
+    for (int i = 0; i < writeIndex; i++) {
+        // Format data line by line
+        int len = snprintf(lineBuffer, sizeof(lineBuffer),
+            "%lu,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%d,%.6f\n",
+            buffer[i].timestamp,
+            buffer[i].gyro[0], buffer[i].gyro[1], buffer[i].gyro[2],
+            buffer[i].quaternions[0], buffer[i].quaternions[1], buffer[i].quaternions[2], buffer[i].quaternions[3],
+            buffer[i].accelerometer[0], buffer[i].accelerometer[1], buffer[i].accelerometer[2],
+            buffer[i].altitude, 
+            buffer[i].gimbalPositions[0], buffer[i].gimbalPositions[1],
+            buffer[i].servoPositions[0], buffer[i].servoPositions[1],
+            buffer[i].continuity[0], buffer[i].continuity[1],
+            buffer[i].flightState, buffer[i].dt);
+            
+        dataFile.write(lineBuffer, len);
+    }
+    
+    dataFile.flush();
+    dataFile.close();
+    
+    Serial.println("Data successfully written to SD");
+    return true;
 }
-
 void resetBuffer() {
     writeIndex = 0;
     bufferFull = false;
