@@ -28,8 +28,8 @@ private:
 public:
     IMU(Adafruit_BNO08x* bno);
     bool initialize();
-    void updateIMU(double dt);
-    void resetIMU();
+    void update(double dt);
+    void reset();
 
     //utilize getter functions to get data from the class help with encapsulation
     double* getQuaternions() { return quaternions; }
@@ -45,8 +45,8 @@ private:
 public:
     Altimeter(Adafruit_BMP3XX* bmp);
     bool initialize();
-    bool updateAltimeter();
-    void zeroAltimeter();
+    bool update();
+    void zero();
 
     double* getAltData() { return altData; }
     double getRefPressure() { return refPressure; }
