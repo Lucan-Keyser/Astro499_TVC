@@ -38,6 +38,7 @@ public:
     double* getGyroOffsets() { return gyroOffsets; }
 };
 
+
 class Altimeter {
 private:
     Adafruit_BMP3XX* bmp;
