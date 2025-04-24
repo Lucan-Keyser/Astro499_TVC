@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "sstream": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "functional": "cpp",
+        "memory": "cpp"
     }
 }

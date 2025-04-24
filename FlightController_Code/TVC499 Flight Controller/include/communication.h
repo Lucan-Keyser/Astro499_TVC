@@ -11,45 +11,49 @@
 #define COMMUNICATION_H
 
 #include <Arduino.h>
-#include <RH_RF95.h>
 #include <PWMServo.h>
+#include <RH_RF95.h>
+#include "../include/config.h"
+#include "../include/control.h"
+#include "../include/sensors.h"
+#include "../include/actuators.h"
 
-// RF95 LoRa radio settings
 #define RFM95_CS 10
 #define RFM95_RST 23
 #define RFM95_INT 1
 #define RF95_FREQ 915.0
 
-extern double lastTelemetryTime;
+// RF95 LoRa radio settings
 
 
-/**
- * @brief Initialize LoRa communication and Serial interface
- * @param rf95 Pointer to RF95 LoRa radio object
- * @param lastTelemetryTime Pointer to last telemetry time
- * @return True if initialization successful, false otherwise
- */
-bool initializeCommunication(RH_RF95* rf95);
-
-/**
-* @brief Check for commands from LoRa radio
-* @param rf95 Pointer to RF95 LoRa radio object
-* @return Command string received from LoRa radio
- */
-String checkForCommands(RH_RF95* rf95);
+class Communication {
+    private:
+        RH_RF95 rf95; // Pointer to RF95 LoRa radio object
+        SensorSystem& sensors; // Sensor system object
+        Control& control; // Control system object
+        Actuators& actuators; // Actuator system object
+        Hardware& hardware; // Hardware system object
+        double lastTelemetryTime = millis(); // Last telemetry time
+        double telemetryInterval = 1000; // Telemetry interval in milliseconds
 
 
-/**
- * @brief Send telemetry data over LoRa
- * @param rf95 Pointer to RF95 LoRa radio object
- * @param quatAngles Array of quaternion angles [yaw,pitch,roll]
- * @param altData Array of altitude data [altitude,pressure,temp]
- * @param yawServo Pointer to yaw servo object
- * @param pitchServo Pointer to pitch servo object
- */
-void sendData(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serailBoolean);
+
+    public:
+
+        Communication(SensorSystem& sensors, Control& control, Actuators& actuators, Hardware& hardware) : rf95(RFM95_CS, RFM95_INT), 
+                        sensors(sensors), control(control), actuators(actuators), hardware(hardware) {}
+       
+                        
+        bool initialize();
+        bool initializeLoRa();
+        String checkForCommands();
+        void sendData();
+        void sendDataNoDelay();
+        void update();
+        
+
+    };
 
 
-void sendDataNoDelay(RH_RF95* rf95, double quatAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serailBoolean);
 
 #endif // COMMUNICATION_H

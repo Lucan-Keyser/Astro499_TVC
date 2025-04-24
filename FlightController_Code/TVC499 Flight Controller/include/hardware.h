@@ -20,6 +20,8 @@ class Hardware {
         bool launchTriggered = false;
         bool pyroContinuity1 = false; // Pyro 1 continuity 
         bool pyroContinuity2 = false; // Pyro 2 continuity
+        double launchTimer = 0; // Timer for launch sequence
+        double separationTimer = 0; // Timer for separation sequence
 
 
     public:
@@ -32,6 +34,7 @@ class Hardware {
         void music();
         void setLaunchBool(bool setpoint);
         void setSeparationBool(bool setpoint);
+        void update();
 
         bool getLaunchTriggered() { return launchTriggered; } // Getter for launch trigger
         bool getSeparationTriggered() { return separationTriggered; } // Getter for separation trigger

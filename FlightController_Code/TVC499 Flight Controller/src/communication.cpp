@@ -11,7 +11,7 @@
 #include "../include/hardware.h"
 #include "../include/config.h"
 
-double lastTelemetryTime = millis(); // Last time telemetry was sent
+
 #pragma pack(push, 1)
 struct TelemetryData {
   float yaw; // Yaw angle in degrees
@@ -27,35 +27,44 @@ struct TelemetryData {
   float serialBoolean; // Serial SD boolean value - 0 1 or 2
 };
 
-bool initializeCommunication(RH_RF95* rf95) {
+bool Communication::initialize() {
+    bool success = true;
+    Serial.begin(115200); // Initialize serial communication for debugging
+    Serial5.begin(115200); // Initialize serial port for logging
+    //Serial.println("Initializing communication...");
+    success = initializeLoRa(); // Initialize LoRa radio
+    return success;
+}
 
-    if (!rf95->init()) {
+bool Communication::initializeLoRa() {
+    bool success = true;
+    if (!rf95.init()) {
         Serial.println("RF95 LoRa init failed!");
-        return false;
+        success = false;
     }
     
     // Configure radio parameters https://www.rfwireless-world.com/calculators/LoRa-Data-Rate-Calculator.html
 
-    rf95->setFrequency(RF95_FREQ);
-    rf95->setTxPower(23, false);
-    rf95->setSpreadingFactor(9);
-    rf95->setSignalBandwidth(500000);
-    rf95->setCodingRate4(5);
+    rf95.setFrequency(RF95_FREQ);
+    rf95.setTxPower(23, false);
+    rf95.setSpreadingFactor(9);
+    rf95.setSignalBandwidth(500000);
+    rf95.setCodingRate4(5);
     
     Serial.println("LoRa radio initialized");
-    return true;
+    return success;
 }
 
-String checkForCommands(RH_RF95* rf95) {
+String Communication::checkForCommands() {
     String command = ""; 
 
-    if (rf95->available()) {
+    if (rf95.available()) {
         // Buffer for received message
         uint8_t buf[RH_RF95_MAX_MESSAGE_LEN]; // Buffer for received message 251 bytes
         uint8_t len = sizeof(buf);
         
         // Read the message
-        if (rf95->recv(buf, &len)) { //recv returns true if a message is received, buf is the buffer, len is the length of the message
+        if (rf95.recv(buf, &len)) { //recv returns true if a message is received, buf is the buffer, len is the length of the message
             buf[len] = '\0';  // Null-terminate buffer so we can treat it as a string
             String receivedCommand = String((char*)buf); 
             receivedCommand.trim(); // Remove any leading/trailing whitespace
@@ -70,29 +79,29 @@ String checkForCommands(RH_RF95* rf95) {
 }
 
 
-void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serialBoolean) {
+void Communication::sendData() {
     // Check if enough time has passed since the last telemetry send
     if (millis() - lastTelemetryTime < TELEMETRY_INTERVAL) {
         return; // Not enough time has passed, skip sending telemetry
     } else {
 
-
-        // Create telemetry data structure
         TelemetryData data;
-        data.roll = eulerAngles[0];
-        data.pitch = eulerAngles[1];
-        data.yaw = eulerAngles[2];
-        data.altitude = altData[0];
-        data.pitchServo = pitchServoAngle;
-        data.yawServo = yawServoAngle;
-        data.continuity1 =  continuity1;
-        data.continuity2 =  continuity2;
-        data.dt = dt;
+        data.roll = sensors.getEulerAngles()[0]; // Get roll angle from sensors
+        data.pitch = sensors.getEulerAngles()[1]; // Get pitch angle from sensors
+        data.yaw = sensors.getEulerAngles()[2]; // Get yaw angle from sensors
+        data.altitude = sensors.getAltitude(); // Get altitude from sensors
+        data.pitchServo = actuators.getServoAngles()[0]; // Get pitch servo angle from actuators
+        data.yawServo = actuators.getServoAngles()[1]; // Get yaw servo angle from actuators
+        data.continuity1 =  hardware.getPyroContinuity1(); // Get continuity 1 value from hardware
+        data.continuity2 =  hardware.getPyroContinuity2(); // Get continuity 2 value from hardware
+        data.dt = sensors.getDt(); // Get time delta from sensors
+      
         data.state = state;
         data.serialBoolean = serialBoolean;
-
-        
-        rf95->send((uint8_t*)&data, sizeof(data));
+      
+              
+        rf95.send((uint8_t*)&data, sizeof(data));
+      
 
         // Update the last send time
         lastTelemetryTime = millis(); // Update the last send time
@@ -100,24 +109,24 @@ void sendData(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pi
     
 }
 
-void sendDataNoDelay(RH_RF95* rf95, double eulerAngles[3], double altData[3], double pitchServoAngle, double yawServoAngle, double continuity1, double continuity2, double dt, int state, double serialBoolean) {
+void Communication::sendDataNoDelay() {
 
-        TelemetryData data;
-        data.roll = eulerAngles[0];
-        data.pitch = eulerAngles[1];
-        data.yaw = eulerAngles[2];
-        data.altitude = altData[0];
-        data.pitchServo = pitchServoAngle;
-        data.yawServo = yawServoAngle;
-        data.continuity1 =  continuity1;
-        data.continuity2 =  continuity2;
-        data.dt = dt;
-        data.state = state;
-        data.serialBoolean = serialBoolean; // Add serial boolean to telemetry data
-
-        rf95->send((uint8_t*)&data, sizeof(data)); // Send the telemetry data
-
-        // Update the last send time
-        lastTelemetryTime = millis(); // Update the last send time
+    // Create telemetry data structure
+    TelemetryData data;
+    data.roll = sensors.getEulerAngles()[0]; // Get roll angle from sensors
+    data.pitch = sensors.getEulerAngles()[1]; // Get pitch angle from sensors
+    data.yaw = sensors.getEulerAngles()[2]; // Get yaw angle from sensors
+    data.altitude = sensors.getAltitude(); // Get altitude from sensors
+    data.pitchServo = actuators.getServoAngles()[0]; // Get pitch servo angle from actuators
+    data.yawServo = actuators.getServoAngles()[1]; // Get yaw servo angle from actuators
+    data.continuity1 =  hardware.getPyroContinuity1(); // Get continuity 1 value from hardware
+    data.continuity2 =  hardware.getPyroContinuity2(); // Get continuity 2 value from hardware
+    data.dt = sensors.getDt(); // Get time delta from sensors
+  
+    data.state = state;
+    data.serialBoolean = serialBoolean;
+  
+          
+    rf95.send((uint8_t*)&data, sizeof(data));
 }
     

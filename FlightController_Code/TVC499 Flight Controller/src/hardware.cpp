@@ -42,6 +42,11 @@ void Hardware::playAlertTone(int frequency, int duration) {
     digitalWrite(BUZZER_LOW, LOW);
 }
 
+void Hardware::update() {
+    // Update hardware state
+    checkPyroContinuity(); // Check pyro continuity
+    setPyros(); // Set pyros based on trigger flags
+}
 
 
 void Hardware::checkPyroContinuity() {
@@ -59,15 +64,32 @@ void Hardware::checkPyroContinuity() {
 }
 
 void Hardware::setPyros() {
-
+    
     if (launchTriggered) {
-        digitalWrite(LAUNCH_PYRO_FIRE, HIGH); // Fire pyro
+        if (launchTimer == 0) { // If this is the first time we are firing the pyro
+            launchTimer = millis(); // Start the timer
+        }
+        if (millis() - launchTimer >= PYRO_DURATION) { // Check if the pyro duration has passed
+            launchTriggered = false; // Reset launch trigger flag after duration
+            digitalWrite(LAUNCH_PYRO_FIRE, LOW); // Turn off pyro
+        } else {
+            digitalWrite(LAUNCH_PYRO_FIRE, HIGH); // Fire pyro
+        }
     } else {
         digitalWrite(LAUNCH_PYRO_FIRE, LOW); // Turn off pyro
     }
+    
 
     if (separationTriggered) {
-        digitalWrite(SEP_PYRO_FIRE, HIGH); // Fire pyro
+        if (separationTimer == 0) { // If this is the first time we are firing the pyro
+            separationTimer = millis(); // Start the timer
+        }
+        if (millis() - separationTimer >= PYRO_DURATION) { // Check if the pyro duration has passed
+            separationTriggered = false; // Reset separation trigger flag after duration
+            digitalWrite(SEP_PYRO_FIRE, LOW); // Turn off pyro
+        } else {
+            digitalWrite(SEP_PYRO_FIRE, HIGH); // Fire pyro
+        }
     } else {
         digitalWrite(SEP_PYRO_FIRE, LOW); // Turn off pyro
     }
