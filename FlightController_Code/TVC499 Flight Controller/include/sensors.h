@@ -19,16 +19,20 @@ private:
     double accelerometer[3] = {0.0, 0.0, 0.0}; // Accelerometer data array
     double eulerAngles[3] = {0.0, 0.0, 0.0}; // Euler angles array
     double gyroRates[3] = {0.0, 0.0, 0.0}; // Gyroscope rates array
+    double lastSensorTime = micros();
+    double dt = 0; // Time delta for sensor updates
+    double refPressure = 1013.25; // Reference pressure in hPa;
 
     
 public:
 
-    bool initialize(double* quaternions, double* accelerometer);
-    void updateIMU(double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double dt);
-    bool updateAltimeter(double* altData);
-    void resetSensors(double* quaternions, double* accelerometer);
-    void zeroAltimeter();
-    void initializeQuaternions(double* quaternions, double* accelerometer);
+    bool initialize();
+    void updateIMU();
+    bool updateAltimeter();
+    bool resetSensors();
+    bool resetIMU();
+    bool zeroAltimeter();
+    void initializeQuaternions();
 
     //getter functions
     double* getGyroRates() { return gyroRates; }

@@ -14,44 +14,33 @@
 #include <FastLED.h>
 
 
-
-/**
- * @brief Play alert tone using the buzzer
- * @param frequency Frequency of the tone in Hz
- * @param duration Duration of the tone in milliseconds
- */
-void playAlertTone(int frequency, int duration);
-
-/**
- * @brief Initialize hardware components (LEDs, pyro channels, buzzer)
- * @param leds Pointer to LED array
- * @param separationTriggered Pointer to separation flag
- * @param launchTriggered Pointer to launch flag
- */
-void initializeHardware(bool& separationTriggered, bool& launchTriggered);
-
-/**
- * @brief Check pyro continuity and buzz if continuity is detected
- * @return True if continuity is detected, false otherwise
- */
-
-void checkPyroContinuity(double* continuity);
-
-/**
- * @brief Trigger separation sequence (fire pyro channel 2)
- * @param leds Pointer to LED array
- * @param separationTriggered Pointer to separation flag
- */
-void triggerSeparation(bool& separationTriggered);
+class Hardware {
+    private:
+        bool separationTriggered = false;
+        bool launchTriggered = false;
+        bool pyroContinuity1 = false; // Pyro 1 continuity 
+        bool pyroContinuity2 = false; // Pyro 2 continuity
 
 
-/**
- * @brief Trigger launch sequence (fire pyro channels 1)
- * @param launchTriggered Pointer to launch flag
- */
-void triggerLaunch(bool& launchTriggered);
+    public:
+        Hardware() {}
+       
+        bool initialize();
+        void playAlertTone(int frequency, int duration);
+        void checkPyroContinuity();
+        void setPyros();
+        void music();
+        void setLaunchBool(bool setpoint);
+        void setSeparationBool(bool setpoint);
 
-void countDownMusic();
+        bool getLaunchTriggered() { return launchTriggered; } // Getter for launch trigger
+        bool getSeparationTriggered() { return separationTriggered; } // Getter for separation trigger
+        bool getPyroContinuity1() { return pyroContinuity1; } // Getter for pyro 1 continuity
+        bool getPyroContinuity2() { return pyroContinuity2; } // Getter for pyro 2 continuity
+
+
+    };
+
 
 
 #endif // HARDWARE_H
