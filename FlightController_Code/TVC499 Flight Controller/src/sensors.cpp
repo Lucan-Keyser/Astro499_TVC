@@ -13,6 +13,46 @@
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
 bool SensorSystem::initialize(double* quaternions, double* accelerometer) {
+    bool success = true;
+    Serial.println("Initializing sensors...");
+    resetIMU();
+    // Initialize BNO085 IMU on Wire2
+    Wire.begin();
+    Wire.setClock(400000); // Set to  400kHz I2C speed
+    if (!bno.begin_I2C(0x4A, &Wire)) {
+        Serial.println("No BNO085 sensor detected!");
+        success = false;
+    } else {
+        Serial.println("BNO085 detected successfully!");
+
+    }
+    Wire1.begin();
+    Wire1.setClock(400000);
+    if (!bmp.begin_I2C(0x77, &Wire1)) {
+        Serial.println("Trying alternative BMP390 address...");
+        success = false;
+    } else {
+        Serial.println("BMP390 detected at address 0x77 on Wire1!");
+    }
+
+    if (success) {
+        // Enable gyroscope reports on the BNO085
+        if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED)) {
+            Serial.println("Could not enable gyroscope reports");
+            success = false;
+        }
+        // Enable accelerometer reports on the BNO085
+        if (!bno.enableReport(SH2_ACCELEROMETER)){
+            Serial.println("Could not enable accelerometer reports");
+            success = false;
+        }
+    }
+
+    initializeQuaternions(quaternions, accelerometer); 
+
+    zeroAltimeter();
+    
+    return success;
 
 }
 
