@@ -21,13 +21,12 @@
 class IMU {
 private:
     Adafruit_BNO08x* bno;
-    Adafruit_BMP3XX* bmp;
     double quaternions[4];
     double accelerometer[3];
     double gyroOffsets[3];
 
 public:
-    IMU(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp);
+    IMU(Adafruit_BNO08x* bno);
     bool initialize();
     void updateIMU(double dt);
     void resetIMU();
@@ -37,7 +36,6 @@ public:
     double* getAccelerometer() { return accelerometer; }
     double* getGyroOffsets() { return gyroOffsets; }
 };
-
 
 class Altimeter {
 private:
