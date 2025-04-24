@@ -8,6 +8,7 @@
 #include <sensors.h>
 #include <actuators.h>
 #include <BasicLinearAlgebra.h>
+using namespace BLA;
 class Control {
     private:
         SensorSystem& sensors; // Sensor system object

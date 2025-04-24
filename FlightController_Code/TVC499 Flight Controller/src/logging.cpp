@@ -2,7 +2,7 @@
 #include "../include/config.h"
 #include "../include/communication.h"
 #include "../include/hardware.h"
-#include "../include/ringbuffer.h"
+
 
 // Local variables for logging
 double gyro[3] = {0.0, 0.0, 0.0}; //in radians/sec
@@ -18,36 +18,48 @@ double state = 0;
 double cont[2] = {0.0,0.0}; // Initialize continuity array
 double serialBoolean = 0;
 
-void initializeLogging() {
+bool LogData::initialize() {
+    bool success = true;
     // Initialize the flight data buffer
     resetBuffer();
-    
-    // Test Serial5 connection
-    Serial5.println("FLIGHT CONTROLLER INITIALIZED");
-    Serial5.println("LOGGING SYSTEM READY");
-    
-    Serial.println("Flight logging system initialized");
+    return success;
+
 }
 
-void logFlightData() {
+void LogData::logFlightData(int state) {
     // Create flight data entry
     FlightDataEntry entry;
     
     // Fill in data
     entry.timestamp = millis();
-    
-    // Copy all flight data
-    memcpy(entry.gyro, gyro, sizeof(entry.gyro));
-    memcpy(entry.quaternions, quat, sizeof(entry.quaternions));
-    memcpy(entry.accelerometer, accel, sizeof(entry.accelerometer));
-    memcpy(entry.servoPositions, servo, sizeof(entry.servoPositions));
-    memcpy(entry.gimbalPositions, gimbal, sizeof(entry.gimbalPositions));
-    memcpy(entry.continuity, cont, sizeof(entry.continuity));
-    
-    // Individual values
-    entry.altitude = alt[0];
+
+    for (int i = 0; i < 3; i++) {
+        entry.gyro[i] = sensors.getGyroRates()[i];
+    }
+
+    for (int i = 0; i < 4; i++) {
+        entry.quaternions[i] = sensors.getQuaternions()[i];
+    }
+
+    for (int i = 0; i < 3; i++) {
+        entry.accelerometer[i] = sensors.getAccelerometer()[i];
+    }
+
+    entry.altitude = sensors.getAltitude();
+
+    for (int i = 0; i < 2; i++) {
+        entry.gimbalPositions[i] = control.getGimbalAngles()[i];
+    }
+
+    for (int i = 0; i < 2; i++) {
+        entry.servoPositions[i] = actuators.getServoAngles()[i];
+    }
+
+    entry.continuity[0] = hardware.getPyroContinuity1();
+    entry.continuity[1] = hardware.getPyroContinuity2();
+    entry.altitude = sensors.getAltitude();
     entry.flightState = state;
-    entry.dt = dT;
+    entry.dt = sensors.getDt();
     
     // Store in the buffer
     /*bool success =*/ storeData(entry);
@@ -63,43 +75,81 @@ void logFlightData() {
     }
 }
 
-void logGlobalData(double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double refPressure, double* altData, double st, double dt, double* continuity) {
-    for(int i = 0; i < 3; i++) gyro[i] = gyroRates[i];
-    for(int i = 0; i < 4; i++) quat[i] = quaternions[i];
-    for(int i = 0; i < 3; i++) euler[i] = eulerAngles[i];
-    for(int i = 0; i < 3; i++) accel[i] = accelerometer[i];
-    for(int i = 0; i < 3; i++) alt[i] = altData[i];
-    for(int i = 0; i < 2; i++) cont[i] = continuity[i];
-    refP = refPressure;
-    state = st;
-    dT = dt;
+
+void LogData::resetBuffer() {
+    writeIndex = 0;
+    bufferFull = false;
+    loggingActive = true;
 }
 
-void logControlData(double* gim, double* serv) {
-    for(int i = 0; i < 2; i++) gimbal[i] = gim[i];
-    for(int i = 0; i < 2; i++) servo[i] = serv[i];
+bool LogData::isBufferFull() {
+    return bufferFull;
 }
 
-void sendToLog(RH_RF95* rf95) { //log all data that's been updated
-    sendData(rf95, euler, alt, servo[0], servo[1], cont[0], cont[1], dT, state, serialBoolean); //send data to LoRa
-    // Serial.println("Data sent to LoRa!");
+int LogData::getEntryCount() {
+    return writeIndex;
 }
 
-void updateSerialLog(RH_RF95* rf95, double setpoint) {
-    serialBoolean = setpoint; //set boolean to true to indicate that data is being sent to serial
-    sendDataNoDelay(rf95, euler, alt, servo[0], servo[1], cont[0], cont[1], dT, state, serialBoolean); //send data to LoRa
+void LogData::setLogging(bool enable) {
+    loggingActive = enable;
 }
 
-// void checkForLogCommands() {
-//     if (Serial.available()) {
-//         String command = Serial.readString();
-//         command.trim();
-        
-//         if (command == "DUMP") {
-//             dumpToSerial();
-//         } else if (command == "RESET") {
-//             resetBuffer();
-//             Serial.println("Flight log buffer reset");
-//         }
-//     }
-// }
+bool LogData::storeData(const FlightDataEntry& entry) {
+    if (bufferFull || !loggingActive) return false;
+    
+    buffer[writeIndex] = entry;
+    writeIndex++;
+    
+    if (writeIndex >= BUFFER_SIZE) {
+        bufferFull = true;
+        return false;
+    }
+    
+    return true;
+}
+
+bool LogData::dumpToSD() {
+    char filename[32];
+    
+    // Initialize SD card
+    if (!sd.begin(SdioConfig(FIFO_SDIO))) {
+        Serial.println("SD initialization failed!");
+        return false;
+    }
+    
+    sprintf(filename, "FLIGHT_%lu.CSV", millis());
+    if (!dataFile.open(filename, O_WRITE | O_CREAT)) {
+        Serial.println("Failed to create file!");
+        return false;
+    }
+    
+    // Write CSV header
+    dataFile.println("timestamp,gx,gy,gz,q0,q1,q2,q3,ax,ay,az,alt,gimbal1,gimbal2,servo1,servo2,cont1,cont2,state,dt");
+    
+    // Use a small 512-byte static buffer (one SD card block)
+    char lineBuffer[512];
+    
+    // Process all entries
+    for (int i = 0; i < writeIndex; i++) {
+        // Format data line by line
+        int len = snprintf(lineBuffer, sizeof(lineBuffer),
+            "%lu,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%d,%.6f\n",
+            buffer[i].timestamp,
+            buffer[i].gyro[0], buffer[i].gyro[1], buffer[i].gyro[2],
+            buffer[i].quaternions[0], buffer[i].quaternions[1], buffer[i].quaternions[2], buffer[i].quaternions[3],
+            buffer[i].accelerometer[0], buffer[i].accelerometer[1], buffer[i].accelerometer[2],
+            buffer[i].altitude, 
+            buffer[i].gimbalPositions[0], buffer[i].gimbalPositions[1],
+            buffer[i].servoPositions[0], buffer[i].servoPositions[1],
+            buffer[i].continuity[0], buffer[i].continuity[1],
+            buffer[i].flightState, buffer[i].dt);
+            
+        dataFile.write(lineBuffer, len);
+    }
+    
+    dataFile.flush();
+    dataFile.close();
+    
+    Serial.println("Data successfully written to SD");
+    return true;
+}

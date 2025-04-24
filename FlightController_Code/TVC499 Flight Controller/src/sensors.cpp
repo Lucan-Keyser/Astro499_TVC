@@ -12,13 +12,18 @@
 
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
-bool SensorSystem::initialize(double* quaternions, double* accelerometer) {
+bool SensorSystem::initialize() {
+
     bool success = true;
+
     Serial.println("Initializing sensors...");
+
     resetIMU();
+
     // Initialize BNO085 IMU on Wire2
     Wire.begin();
     Wire.setClock(400000); // Set to  400kHz I2C speed
+
     if (!bno.begin_I2C(0x4A, &Wire)) {
         Serial.println("No BNO085 sensor detected!");
         success = false;
@@ -26,8 +31,10 @@ bool SensorSystem::initialize(double* quaternions, double* accelerometer) {
         Serial.println("BNO085 detected successfully!");
 
     }
+
     Wire1.begin();
     Wire1.setClock(400000);
+
     if (!bmp.begin_I2C(0x77, &Wire1)) {
         Serial.println("Trying alternative BMP390 address...");
         success = false;
@@ -48,7 +55,7 @@ bool SensorSystem::initialize(double* quaternions, double* accelerometer) {
         }
     }
 
-    initializeQuaternions(quaternions, accelerometer); 
+    initializeQuaternions(); 
 
     zeroAltimeter();
     
@@ -56,51 +63,8 @@ bool SensorSystem::initialize(double* quaternions, double* accelerometer) {
 
 }
 
-bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
-    bool success = true;
-    Serial.println("Initializing sensors...");
-    resetIMU();
-    // Initialize BNO085 IMU on Wire2
-    Wire.begin();
-    Wire.setClock(400000); // Set to  400kHz I2C speed
-    if (!bno->begin_I2C(0x4A, &Wire)) {
-        Serial.println("No BNO085 sensor detected!");
-        success = false;
-    } else {
-        Serial.println("BNO085 detected successfully!");
 
-    }
-    Wire1.begin();
-    Wire1.setClock(400000);
-    if (!bmp->begin_I2C(0x77, &Wire1)) {
-        Serial.println("Trying alternative BMP390 address...");
-        success = false;
-    } else {
-        Serial.println("BMP390 detected at address 0x77 on Wire1!");
-    }
-
-    if (success) {
-        // Enable gyroscope reports on the BNO085
-        if (!bno->enableReport(SH2_GYROSCOPE_CALIBRATED)) {
-            Serial.println("Could not enable gyroscope reports");
-            success = false;
-        }
-        // Enable accelerometer reports on the BNO085
-        if (!bno->enableReport(SH2_ACCELEROMETER)){
-            Serial.println("Could not enable accelerometer reports");
-            success = false;
-        }
-    }
-
-    initializeQuaternions(bno, quaternions, accelerometer); 
-
-    zeroAltimeter(bmp, refPressure);
-    
-    return success;
-}
-
-
-void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* accelerometer) {
+void SensorSystem::initializeQuaternions() {
     //Initialize quaternion
     sh2_SensorValue_t sensorValue;
 
@@ -110,7 +74,7 @@ void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* a
     double zSum = 0;
 
     for (int i = 0 ; i < n; i++) {
-        if (bno->getSensorEvent(&sensorValue)) {
+        if (bno.getSensorEvent(&sensorValue)) {
             // Serial.println("lmao");
             //get accelerometer data
             if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
@@ -126,6 +90,7 @@ void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* a
 
         delay(10);
     }
+
     double xAvg = xSum/n;
     double yAvg = ySum/n;
     double zAvg = zSum/n;
@@ -153,14 +118,15 @@ void initializeQuaternions(Adafruit_BNO08x* bno,  double* quaternions, double* a
 
     // Serial.printf("pitch: %.6f, yaw: %.6f\n", pitch, yaw);
 
-    
+
 }
 
-void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double dt) {
+void SensorSystem::updateIMU() {
     // Record start time
     sh2_SensorValue_t sensorValue;
     
-    if (bno->getSensorEvent(&sensorValue)) {
+    
+    if (bno.getSensorEvent(&sensorValue)) {
             // Process calibrated gyroscope data
             if (sensorValue.sensorId == SH2_GYROSCOPE_CALIBRATED) {
                 // Calibrated gyroscope data in rad/s
@@ -173,8 +139,11 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, dou
             }
         }
 
+    dt = (micros() - lastSensorTime) / 1000000.0; // Calculate time delta in seconds as close as possible to sensor reading;
+    lastSensorTime = micros(); // Update last sensor time
 
-    if (bno->getSensorEvent(&sensorValue)) {
+    // Update accelerometer data, dT not required for this
+    if (bno.getSensorEvent(&sensorValue)) {
         // Serial.println("lmao");
         //get accelerometer data
         if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
@@ -221,53 +190,41 @@ void updateIMU(Adafruit_BNO08x* bno, double* gyroRates, double* quaternions, dou
 
 }
 
-bool updateAltimeter(Adafruit_BMP3XX* bmp, double altData[3], double& refPressure) {
+bool SensorSystem::updateAltimeter() {
     // Read data from the BMP sensor
-    if (bmp->performReading()) {
+    if (bmp.performReading()) {
             // Update altitude data array
-            altData[0] = bmp->readAltitude(refPressure);  // Altitude based on reference pressure
-            altData[1] = bmp->pressure;                   // Raw pressure
-            altData[2] = bmp->temperature;                // Temperature
+            altData[0] = bmp.readAltitude(refPressure);  // Altitude based on reference pressure
+            altData[1] = bmp.pressure;                   // Raw pressure
+            altData[2] = bmp.temperature;                // Temperature
             return true;
     } else {
         Serial.println("Failed to read BMP390 sensor data!");
         return false;
     }
     
-    
     // If we get here, all attempts failed
     Serial.println("Failed to perform altimeter reading after multiple attempts");
     return false;
 }
 
-void returnData(sensors_event_t* event, double data[3]) {
-    // Initialize with invalid values to detect problems
-    data[0] = -1000;
-    data[1] = -1000;
-    data[2] = -1000;
-    
-    // Extract only gyroscope data
-    if (event->type == SENSOR_TYPE_GYROSCOPE) {
-        data[0] = event->gyro.x; // Gyroscope X-axis data in degrees/sec
-        data[1] = event->gyro.y; // Gyroscope Y-axis data in degrees/sec
-        data[2] = event->gyro.z; // Gyroscope Z-axis data in degrees/sec
-    }
-}
 
-//NO NEED CURRENTLY, BUT MAY BE NEEDED LATER
-
-void resetSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
-    resetIMU();
-    zeroAltimeter(bmp, refPressure);
-    if (!bno->enableReport(SH2_GYROSCOPE_CALIBRATED)) {
+bool SensorSystem::resetSensors() {
+    bool success = true;
+    success = resetIMU();
+    success = zeroAltimeter();
+    if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED)) {
         Serial.println("Could not enable gyroscope reports");
+        success = false;
     }
-    if (!bno->enableReport(SH2_ACCELEROMETER)){
+    if (!bno.enableReport(SH2_ACCELEROMETER)){
         Serial.println("Could not enable accelerometer reports");
+        success = false;
     }
-    initializeQuaternions(bno, quaternions, accelerometer);
+    initializeQuaternions();
+    return success;
 }
-void resetIMU() {
+bool SensorSystem::resetIMU() {
     Serial.println("Resetting IMU...");
     // Reset the BNO085 IMU by toggling the reset pin   
     pinMode(BNO_RESET_PIN, OUTPUT);
@@ -280,20 +237,26 @@ void resetIMU() {
     pinMode(BNO_RESET_PIN, INPUT); // Set the pin back to input mode this is needed to avoid floating pin issues and let the bno085 reset itself with the internal pullup
     delay(2000); // Wait for the IMU to reset and stabilize
     Serial.println("IMU reset complete.");
+    return true;
 
 }
 
-void zeroAltimeter(Adafruit_BMP3XX* bmp, double& refPressure) {
+bool SensorSystem::zeroAltimeter() {
     double tempAltData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude, pressure, temperature], just within this function
     double sumPressure = 0.0; // Sum of pressure readings for calibration
     // Try to get a good pressure reading
     for (int i = 0; i < ALTIMETER_CALIBRATION_COUNT; i++) {
         // Read the raw pressure and temperature values
-        updateAltimeter(bmp, tempAltData, refPressure);
+        updateAltimeter();
         sumPressure += tempAltData[1]; // Add the pressure reading to the sum
         delay(ALTIMETER_CALIBRATION_DELAY);
     }
 
     refPressure = sumPressure / (ALTIMETER_CALIBRATION_COUNT * 100); // Calculate the average pressure for calibration and convert to HPA
+    return true;
+}
 
+bool SensorSystem::checkLaunch() {
+    return accelerometer[0] <= LAUNCH_ACCELERATION
+    
 }

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "../include/flightComputer.h"
+#include <FlightComputer.h>
 
 
 

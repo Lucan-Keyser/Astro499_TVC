@@ -10,6 +10,9 @@ bool FlightComputer::initialize() {
     success = actuators.initialize(); // Initialize actuators
     success = control.initialize(); // Initialize control system
     success = communication.initialize(); // Initialize communication system
+    success = logdata.initialize(); // Initialize logging system
+    success = state.initialize(); // Initialize state machine
+
 
     // initializeBuffer();
     
@@ -31,18 +34,7 @@ void FlightComputer::update() {
     // Update hardware
     hardware.update(); // Update hardware state
 
-    communication.sendData(); // Send telemetry data
-    
-    // Log data
-    // logFlightData(sensors.getGyroRates(), sensors.getQuaternions(), sensors.getEulerAngles(), sensors.getAccelerometer(), sensors.getPressure(), sensors.getAltitude(), sensors.getTemperature(), sensors.getState(), sensors.getDt(), hardware.getPyroContinuity1(), hardware.getPyroContinuity2());
 
-  
-    // stateMachine(&bno, &bmp, &rf95, STATE, accelerometer, eulerAngles, altData, quaternions, refPressure, launchTriggered, separationTriggered); 
-  
-  
-    // logGlobalData(gyroRates, quaternions, eulerAngles, accelerometer, refPressure, altData, STATE, dt, continuity);
-    // sendToLog(&rf95);
-  
-    // checkForCommands(&rf95); 
+    state.executeState(); // Execute state machine logic
 }
 

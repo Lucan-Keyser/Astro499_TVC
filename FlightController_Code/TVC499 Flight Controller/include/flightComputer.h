@@ -20,7 +20,6 @@
 #include "../include/state.h"
 #include "../include/logging.h"
 #include "../include/config.h"
-#include "../include/ringbuffer.h"
 
 
 class FlightComputer {
@@ -30,12 +29,17 @@ class FlightComputer {
         Hardware hardware; // Hardware system object
         Control control; // Control system object
         Communication communication; // Communication system object
+        LogData logdata; // Logging system object
+        State state; // State machine object
 
 
 
 
     public:
-        FlightComputer() : control(sensors, actuators), communication(sensors, control, actuators, hardware) {}
+        FlightComputer() : control(sensors, actuators), 
+        communication(sensors, control, actuators, hardware), 
+        logdata(sensors, control, actuators, hardware),
+        state(sensors, control, actuators, hardware, communication, logdata) {}
        
         bool initialize();
         void update();

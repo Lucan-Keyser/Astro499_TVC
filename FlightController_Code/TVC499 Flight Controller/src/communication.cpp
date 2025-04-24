@@ -12,20 +12,7 @@
 #include "../include/config.h"
 
 
-#pragma pack(push, 1)
-struct TelemetryData {
-  float yaw; // Yaw angle in degrees
-  float pitch; // Pitch angle in degrees
-  float roll; // Roll angle in degrees
-  float altitude; // Altitude in meters
-  float yawServo; // Yaw servo angle in degrees
-  float pitchServo; // Pitch servo angle in degrees
-  float continuity1; // Continuity 1 value - 0 or 1 
-  float continuity2; // Continuity 2 value - 0 or 1
-  float dt; // Time delta in seconds for main loop
-  float state; // Flight state - 0 to 7
-  float serialBoolean; // Serial SD boolean value - 0 1 or 2
-};
+
 
 bool Communication::initialize() {
     bool success = true;
@@ -79,7 +66,7 @@ String Communication::checkForCommands() {
 }
 
 
-void Communication::sendData() {
+void Communication::sendData(int state, int sdLogState) {
     // Check if enough time has passed since the last telemetry send
     if (millis() - lastTelemetryTime < TELEMETRY_INTERVAL) {
         return; // Not enough time has passed, skip sending telemetry
@@ -97,7 +84,7 @@ void Communication::sendData() {
         data.dt = sensors.getDt(); // Get time delta from sensors
       
         data.state = state;
-        data.serialBoolean = serialBoolean;
+        data.sdLogState = sdLogState;
       
               
         rf95.send((uint8_t*)&data, sizeof(data));
@@ -109,7 +96,7 @@ void Communication::sendData() {
     
 }
 
-void Communication::sendDataNoDelay() {
+void Communication::sendDataNoDelay(int state, int sdLogState) {
 
     // Create telemetry data structure
     TelemetryData data;
@@ -124,7 +111,7 @@ void Communication::sendDataNoDelay() {
     data.dt = sensors.getDt(); // Get time delta from sensors
   
     data.state = state;
-    data.serialBoolean = serialBoolean;
+    data.sdLogState = sdLogState;
   
           
     rf95.send((uint8_t*)&data, sizeof(data));

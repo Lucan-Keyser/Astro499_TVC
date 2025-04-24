@@ -13,57 +13,60 @@
 #include <Arduino.h>
 #include <PWMServo.h>
 #include <RH_RF95.h>
-#include "../include/ringbuffer.h"
 
-/**
- * @brief Initialize logging system
- */
-void initializeLogging();
+#include "../include/config.h"
+#include <SdFat.h>
 
-/**
- * @brief Log flight data to ring buffer
- */
-void logFlightData();
+#define SD_CONFIG SdioConfig(FIFO_SDIO)
 
-/**
- * @brief Log control data
- * @param gimbal Gimbal positions array
- * @param servo Servo positions array
- */
-void logControlData(double* gimbal, double* servo);
+struct FlightDataEntry {
+    unsigned long timestamp;  // milliseconds since boot
+    double gyro[3];          // gyro readings
+    double quaternions[4];   // orientation
+    double accelerometer[3]; // acceleration values
+    double altitude;         // current altitude
+    double servoPositions[2]; // servo positions
+    double gimbalPositions[2];
+    double continuity[2];    // pyro continuity readings
+    int flightState;         // current state of flight controller
+    double dt;               // time delta
+};
 
-/**
- * @brief Log global flight data
- * @param gyroRates Gyroscope rates array
- * @param quaternions Quaternion values array
- * @param eulerAngles Euler angles array
- * @param accelerometer Accelerometer values array
- * @param refPressure Reference pressure
- * @param altData Altitude data array
- * @param st Flight state
- * @param dt Time delta
- * @param continuity Continuity values array
- */
-void logGlobalData(double* gyroRates, double* quaternions, double* eulerAngles, 
-                  double* accelerometer, double refPressure, double* altData, 
-                  double st, double dt, double* continuity);
+class LogData {
+    private:
+        SensorSystem& sensors; // Sensor system object
+        Control& control; // Control system object
+        Actuators& actuators; // Actuator system object
+        Hardware& hardware; // Hardware system object
 
-/**
- * @brief Send logged data to telemetry
- * @param rf95 LoRa radio object pointer
- */
-void sendToLog(RH_RF95* rf95);
+        FlightDataEntry buffer[BUFFER_SIZE];
+        int writeIndex = 0;
+        bool bufferFull = false;
+        bool loggingActive = true;
 
-/**
- * @brief Update serial log with setpoint
- * @param rf95 LoRa radio object pointer
- * @param setpoint Serial boolean setpoint
- */
-void updateSerialLog(RH_RF95* rf95, double setpoint);
+        SdFs sd;
+        FsFile dataFile;
 
-/**
- * @brief Process serial commands for logging
- */
-void checkForLogCommands();
+char filename[32];
+
+    public:
+        LogData(SensorSystem& sensors, Control& control, Actuators& actuators, Hardware& hardware) : sensors(sensors),
+             control(control), actuators(actuators), hardware(hardware) {}
+
+       
+        bool initialize();
+        void resetBuffer();
+        bool isBufferFull();
+        void logFlightData(int state);
+        int getEntryCount();
+        void setLogging(bool enable);
+        bool dumpToSD();
+        bool storeData(const FlightDataEntry& entry);
+  
+
+    };
+
+
+
 
 #endif // LOGGING_H

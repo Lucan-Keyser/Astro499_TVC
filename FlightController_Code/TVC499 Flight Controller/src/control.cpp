@@ -1,6 +1,6 @@
 #include "../include/control.h"
 #include "../include/config.h"
-#include "../include/logging.h"
+
 #include <BasicLinearAlgebra.h>
 #include <PWMServo.h>
 using namespace BLA;
@@ -33,9 +33,11 @@ void Control::control() {
     gimbalAngles[0] = constrain(gimbalAngles[0], -MAX_GIMBAL_ANGLE, MAX_GIMBAL_ANGLE); //Constrain the gimbal angles to the servo limits
     gimbalAngles[1] = constrain(gimbalAngles[1], -MAX_GIMBAL_ANGLE, MAX_GIMBAL_ANGLE); //Constrain the gimbal angles to the servo limits
 
-    if (controlActive) { //if we actually want to control the gimbal
-        actuators.moveServos(gimbalAngles); //move servos to the calculated angles
+    if (!controlActive) { //if the control is not active, set the gimbal angles to 0
+        gimbalAngles[0] = 0.0;
+        gimbalAngles[1] = 0.0;
     }
+    actuators.moveServos(gimbalAngles); //move the servos to the gimbal angles
     
     
 }

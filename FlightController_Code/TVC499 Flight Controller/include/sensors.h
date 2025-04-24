@@ -33,7 +33,7 @@ public:
     bool resetIMU();
     bool zeroAltimeter();
     void initializeQuaternions();
-
+    bool checkLaunch();
     //getter functions
     double* getGyroRates() { return gyroRates; }
     double* getQuaternions() { return quaternions; }
@@ -43,6 +43,7 @@ public:
     double getAltitude() { return altData[0]; }
     double getPressure() { return altData[1]; }
     double getTemperature() { return altData[2]; }
+    double getDt() { return dt; }
 
 };
 

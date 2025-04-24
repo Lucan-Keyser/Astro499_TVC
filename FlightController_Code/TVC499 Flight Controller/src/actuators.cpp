@@ -1,6 +1,5 @@
 #include "../include/control.h"
 #include "../include/config.h"
-#include "../include/logging.h"
 #include "../include/actuators.h"
 #include <BasicLinearAlgebra.h>
 #include <PWMServo.h>
