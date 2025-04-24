@@ -7,7 +7,6 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO08x.h>
 #include <Adafruit_BMP3XX.h>
-#include "../include/config.h"
 
 class SensorSystem {
 private:
@@ -15,7 +14,6 @@ private:
     Adafruit_BMP3XX bmp;
     
 public:
-    SensorSystem();
     
     bool initialize(double* quaternions, double* accelerometer);
     void updateIMU(double* gyroRates, double* quaternions, double* eulerAngles, double* accelerometer, double dt);
