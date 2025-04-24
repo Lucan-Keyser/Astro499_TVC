@@ -12,6 +12,9 @@
 
 double gyroOffsets[3] = {0.0, 0.0, 0.0}; // Gyro offsets for calibration
 
+bool SensorSystem::initialize(double* quaternions, double* accelerometer) {
+
+}
 
 bool initializeSensors(Adafruit_BNO08x* bno, Adafruit_BMP3XX* bmp, double* quaternions, double* accelerometer, double& refPressure) {
     bool success = true;
