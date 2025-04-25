@@ -257,6 +257,6 @@ bool SensorSystem::zeroAltimeter() {
 }
 
 bool SensorSystem::checkLaunch() {
-    return accelerometer[0] <= LAUNCH_ACCELERATION
+    return accelerometer[0] <= LAUNCH_ACCELERATION;
     
 }

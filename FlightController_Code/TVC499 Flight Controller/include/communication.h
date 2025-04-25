@@ -17,6 +17,7 @@
 #include "../include/control.h"
 #include "../include/sensors.h"
 #include "../include/actuators.h"
+#include "../include/hardware.h"
 
 #define RFM95_CS 10
 #define RFM95_RST 23

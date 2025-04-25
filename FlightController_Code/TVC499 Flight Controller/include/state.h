@@ -5,8 +5,9 @@
 #include "../include/config.h"
 #include "../include/sensors.h"
 #include "../include/control.h"
-#include "../include/logging.h" 
+#include "../include/logdata.h" 
 #include "../include/hardware.h"
+#include "../include/communication.h"
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO08x.h>
@@ -20,8 +21,8 @@ class State {
         Actuators& actuators; // Actuator system object
         Hardware& hardware; // Hardware system object
         Control& control; // Control system object
+        LogData& logdata; // Logging system object
         Communication& communication; // Communication system object
-        Log& logging; // Logging system object
 
         double startLaunch = 0; // Start time of launch sequence
         double apogeeTimeLast = 0; //last time we checked apogee
@@ -37,8 +38,8 @@ class State {
 
     public:
 
-        State(SensorSystem& sensors, Control& control, Actuators& actuators, Hardware& hardware, Communication& communication, Log logging) : sensors(sensors),
-        control(control), actuators(actuators), hardware(hardware), communication(communication), logging(logging) {}
+        State(SensorSystem& sensors, Control& control, Actuators& actuators, Hardware& hardware, Communication& communication, LogData& logdata) : sensors(sensors),
+        control(control), actuators(actuators), hardware(hardware), communication(communication), logdata(logdata) {}
        
         bool initialize();
         void executeState();

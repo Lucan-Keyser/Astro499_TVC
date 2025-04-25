@@ -2,7 +2,7 @@
 #include "../include/config.h"
 #include "../include/sensors.h"
 #include "../include/control.h"
-#include "../include/logging.h" 
+#include "../include/logdata.h" 
 #include "../include/hardware.h"
 #include <RH_RF95.h>
 #include <math.h>
@@ -44,7 +44,7 @@ void State::executeState() {
             break;
         case ASCENT:
             hardware.setLaunchBool(false); //trigger launch sequence
-            logging.logFlightData(state); //log data
+            logdata.logFlightData(state); //log data
 
             if (checkAbort(sensors.getEulerAngles())) { //if we detect an abort condition, we are in abort state
                 state = ABORT;
@@ -55,7 +55,7 @@ void State::executeState() {
             break;
         case UNPOWERED_ASCENT:
             sensors.updateAltimeter(); //kills dt, moving to state machine. on unpowered ascent we should be fine
-            logging.logFlightData(state); //log data
+            logdata.logFlightData(state); //log data
 
             if (detectApogee(sensors.getAltitude())) { //if we detect apogee, we are in descent
                 control.updateControlBoolean(false); //turn off control mode
@@ -70,7 +70,7 @@ void State::executeState() {
             sdLogState = 1; //set SD logging state to 1
             communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
             // Use the new high-speed SD writing function instead of dumpToSerial
-            if (logging.dumpToSD()) {
+            if (logdata.dumpToSD()) {
                 sdLogState = 2;
                 communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
             } else {

@@ -18,7 +18,7 @@
 #include "../include/sensors.h"
 #include "../include/control.h"
 #include "../include/state.h"
-#include "../include/logging.h"
+#include "../include/logdata.h"
 #include "../include/config.h"
 
 

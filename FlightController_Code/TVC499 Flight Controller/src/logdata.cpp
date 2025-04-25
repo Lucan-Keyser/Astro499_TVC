@@ -1,22 +1,7 @@
-#include "../include/logging.h"
+#include "../include/logdata.h"
 #include "../include/config.h"
 #include "../include/communication.h"
 #include "../include/hardware.h"
-
-
-// Local variables for logging
-double gyro[3] = {0.0, 0.0, 0.0}; //in radians/sec
-double quat[4] = {1, 0, 0, 0}; //Quaterinon vector
-double euler[3] = {0.0, 0.0, 0.0}; // Yaw, Pitch, Roll in degrees
-double accel[3] = {0.0, 0.0, 0.0}; //accelerometer values, x,y,z
-double refP = 1000; // Reference pressure in hPa
-double alt[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude (m), pressure (PA), temperature]
-double dT = 0; 
-double gimbal[2] = {0.0, 0.0}; //pitch and yaw torque
-double servo[2] =  {0.0, 0.0};
-double state = 0;
-double cont[2] = {0.0,0.0}; // Initialize continuity array
-double serialBoolean = 0;
 
 bool LogData::initialize() {
     bool success = true;
