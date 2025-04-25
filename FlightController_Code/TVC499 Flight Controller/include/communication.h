@@ -37,7 +37,6 @@ class Communication {
         double lastTelemetryTime = millis(); // Last telemetry time
         double telemetryInterval = 1000; // Telemetry interval in milliseconds
 
-        #pragma pack(push, 1)
         struct TelemetryData {
             float yaw; // Yaw angle in degrees
             float pitch; // Pitch angle in degrees

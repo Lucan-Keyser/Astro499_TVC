@@ -24,7 +24,6 @@
 #include "../include/config.h"
 #include <SdFat.h>
 
-#define SD_CONFIG SdioConfig(FIFO_SDIO)
 
 
 class LogData {
@@ -51,6 +50,12 @@ class LogData {
         int writeIndex = 0;
         bool bufferFull = false;
         bool loggingActive = true;
+
+        SdFat sd; // SD card object
+        FsFile dataFile; // File object for SD card
+        char filename[32]; // Filename for SD card
+
+        
 
        
 

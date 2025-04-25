@@ -9,6 +9,8 @@
 bool LogData::initialize() {
     bool success = true;
     // Initialize the flight data buffer
+     // Initialize SD card)
+    
     resetBuffer();
     return success;
 
@@ -97,17 +99,15 @@ bool LogData::storeData(const FlightDataEntry& entry) {
 }
 
 bool LogData::dumpToSD() {
-    SdFs sd;
-    FsFile dataFile;
-    char filename[32];
+
     Serial.println("Entered dumpToSD() function");
-    // Initialize SD card
-    if (!sd.begin(SdioConfig(FIFO_SDIO))) {
-        Serial.println("SD initialization failed!");
+    
+    if(!sd.begin(SD_CONFIG)) {
+        Serial.println("Failed to initialize SD card!");
         return false;
     }
-    Serial.println("SD initialized successfully!");
-    
+    Serial.println("Sd chill");
+
     sprintf(filename, "FLIGHT_%lu.CSV", millis());
     if (!dataFile.open(filename, O_WRITE | O_CREAT)) {
         Serial.println("Failed to create file!");
@@ -137,11 +137,11 @@ bool LogData::dumpToSD() {
             buffer[i].continuity[0], buffer[i].continuity[1],
             buffer[i].flightState, buffer[i].dt);
             
-        // dataFile.write(lineBuffer, len);
+        dataFile.write(lineBuffer, len);
     }
     
-    // dataFile.flush();
-    // dataFile.close();
+    dataFile.flush();
+    dataFile.close();
     
     Serial.println("Data successfully written to SD");
     return true;

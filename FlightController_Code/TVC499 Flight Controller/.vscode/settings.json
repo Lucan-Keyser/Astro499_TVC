@@ -3,6 +3,16 @@
         "sstream": "cpp",
         "streambuf": "cpp",
         "functional": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "random": "cpp",
+        "mutex": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "initializer_list": "cpp"
     }
 }
