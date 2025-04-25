@@ -2,6 +2,9 @@
 #include "../include/config.h"
 #include "../include/communication.h"
 #include "../include/hardware.h"
+#include <SdFat.h>
+
+
 
 bool LogData::initialize() {
     bool success = true;
@@ -94,19 +97,24 @@ bool LogData::storeData(const FlightDataEntry& entry) {
 }
 
 bool LogData::dumpToSD() {
+    SdFs sd;
+    FsFile dataFile;
     char filename[32];
-    
+    Serial.println("Entered dumpToSD() function");
     // Initialize SD card
     if (!sd.begin(SdioConfig(FIFO_SDIO))) {
         Serial.println("SD initialization failed!");
         return false;
     }
+    Serial.println("SD initialized successfully!");
     
     sprintf(filename, "FLIGHT_%lu.CSV", millis());
     if (!dataFile.open(filename, O_WRITE | O_CREAT)) {
         Serial.println("Failed to create file!");
         return false;
     }
+
+    Serial.println("File created successfully!");
     
     // Write CSV header
     dataFile.println("timestamp,gx,gy,gz,q0,q1,q2,q3,ax,ay,az,alt,gimbal1,gimbal2,servo1,servo2,cont1,cont2,state,dt");
@@ -129,11 +137,11 @@ bool LogData::dumpToSD() {
             buffer[i].continuity[0], buffer[i].continuity[1],
             buffer[i].flightState, buffer[i].dt);
             
-        dataFile.write(lineBuffer, len);
+        // dataFile.write(lineBuffer, len);
     }
     
-    dataFile.flush();
-    dataFile.close();
+    // dataFile.flush();
+    // dataFile.close();
     
     Serial.println("Data successfully written to SD");
     return true;

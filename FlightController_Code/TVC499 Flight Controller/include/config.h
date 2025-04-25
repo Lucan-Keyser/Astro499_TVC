@@ -70,9 +70,11 @@
 // Other Constants
 #define TELEMETRY_INTERVAL 200  // Send serial data every 200ms
 #define REF_PRESSURE_HPA 0  // Default reference pressure in hPa
+// #define SD_CONFIG 
+
 
 //Ring Buffer Size
-#define BUFFER_SIZE 2150  // 5 seconds at 1000Hz
+#define BUFFER_SIZE 1500  // 5 seconds at 1000Hz
 
 
 

@@ -194,7 +194,9 @@ bool SensorSystem::updateAltimeter() {
     // Read data from the BMP sensor
     if (bmp.performReading()) {
             // Update altitude data array
-            altData[0] = bmp.readAltitude(refPressure);  // Altitude based on reference pressure
+            altData[0] = bmp.readAltitude(refPressure);
+            // Serial.println("Reading Altitude");
+            // Serial.println(altData[0]); // Altitude based on reference pressure
             altData[1] = bmp.pressure;                   // Raw pressure
             altData[2] = bmp.temperature;                // Temperature
             return true;
@@ -242,17 +244,18 @@ bool SensorSystem::resetIMU() {
 }
 
 bool SensorSystem::zeroAltimeter() {
-    double tempAltData[3] = {0.0, 0.0, 0.0}; // Altitude data [altitude, pressure, temperature], just within this function
     double sumPressure = 0.0; // Sum of pressure readings for calibration
     // Try to get a good pressure reading
     for (int i = 0; i < ALTIMETER_CALIBRATION_COUNT; i++) {
         // Read the raw pressure and temperature values
         updateAltimeter();
-        sumPressure += tempAltData[1]; // Add the pressure reading to the sum
+        sumPressure += altData[1]; // Add the pressure reading to the sum
         delay(ALTIMETER_CALIBRATION_DELAY);
     }
 
-    refPressure = sumPressure / (ALTIMETER_CALIBRATION_COUNT * 100); // Calculate the average pressure for calibration and convert to HPA
+    refPressure = sumPressure / (ALTIMETER_CALIBRATION_COUNT * 100.0); // Calculate the average pressure for calibration and convert to HPA
+    Serial.print("Reference pressure: ");
+    Serial.println(refPressure);
     return true;
 }
 

@@ -1,6 +1,6 @@
 // SensorSystem.h
-#ifndef SENSOR_SYSTEM_H
-#define SENSOR_SYSTEM_H
+#ifndef SENSORS_H
+#define SENSORS_H
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -47,4 +47,4 @@ public:
 
 };
 
-#endif // SENSOR_SYSTEM_H
+#endif // SENSORS_H

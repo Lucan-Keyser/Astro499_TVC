@@ -52,10 +52,7 @@ class LogData {
         bool bufferFull = false;
         bool loggingActive = true;
 
-        SdFs sd;
-        FsFile dataFile;
-
-        char filename[32];
+       
 
     public:
         LogData(SensorSystem& sensors, Control& control, Actuators& actuators, Hardware& hardware) : sensors(sensors),

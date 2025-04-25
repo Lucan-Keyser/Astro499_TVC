@@ -61,7 +61,18 @@ String Communication::checkForCommands() {
             
             command = receivedCommand;
             }
+        } else if (Serial.available()) { // Check if data is available on Serial5
+            String receivedCommand = Serial.readStringUntil('\n'); // Read the command until newline character
+            receivedCommand.trim(); // Remove any leading/trailing whitespace
+            
+            Serial.print("Serial received: "); 
+            Serial.println(receivedCommand);
+            
+            command = receivedCommand;
+        } else {
+            command = ""; // No command received
         }
+    
     return command; 
 }
 

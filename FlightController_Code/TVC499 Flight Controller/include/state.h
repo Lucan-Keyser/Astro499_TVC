@@ -45,6 +45,9 @@ class State {
         void executeState();
         bool checkAbort(double* eulerAngles); // Check for abort condition
         bool detectApogee(double altitude); // Check for apogee detection
+
+
+        int getState() { return state; } // Getter for current state
 };
 
 

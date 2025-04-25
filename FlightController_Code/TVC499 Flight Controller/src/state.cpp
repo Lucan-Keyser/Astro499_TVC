@@ -49,20 +49,33 @@ void State::executeState() {
             if (checkAbort(sensors.getEulerAngles())) { //if we detect an abort condition, we are in abort state
                 state = ABORT;
             } else if (((millis() - startLaunch) >= BURN_TIME)) { //if we should be done burning and we're in freefall
-                state++;
                 apogeeTimeLast = millis(); //reset apogee timer
+                state++;
+                
             }
             break;
         case UNPOWERED_ASCENT:
             sensors.updateAltimeter(); //kills dt, moving to state machine. on unpowered ascent we should be fine
             logdata.logFlightData(state); //log data
-
+            
             if (detectApogee(sensors.getAltitude())) { //if we detect apogee, we are in descent
                 control.updateControlBoolean(false); //turn off control mode
                 state++;
             } 
             break;
         case DESCENT:
+            hardware.setSeparationBool(true); //trigger separation sequence
+            sdLogState = 1; //set SD logging state to 1
+            communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
+            // Use the new high-speed SD writing function instead of dumpToSerial
+            if (logdata.dumpToSD()) {
+                sdLogState = 2;
+                communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
+            } else {
+                sdLogState = 3;
+                communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
+            }
+            state = GROUND_IDLE; //move to ground idle state
             
             break;
         case ABORT:
@@ -77,8 +90,10 @@ void State::executeState() {
                 sdLogState = 3;
                 communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
             }
+            state = GROUND_IDLE; //move to ground idle state
             break;
         case GROUND_IDLE:
+
             break;
     }
 
@@ -130,5 +145,6 @@ bool State::detectApogee(double altitude) {
         }
         return false;
     }
+    return true; //if we get here, something went wrong, return true to avoid infinite loop
     
 }
