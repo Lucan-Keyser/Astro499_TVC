@@ -13,7 +13,7 @@
 #include <Arduino.h>
 #include <PWMServo.h>
 #include <RH_RF95.h>
-#include "../include/state.h"
+
 #include "../include/config.h"
 #include "../include/sensors.h"
 #include <sensors.h>

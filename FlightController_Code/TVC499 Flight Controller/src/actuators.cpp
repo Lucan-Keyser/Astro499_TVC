@@ -7,8 +7,8 @@
 
 bool Actuators::initialize() {
         // Initialize the control system
-        pitchServo->attach(PITCH_SERVO_PIN);  // Attach pitch servo to pin J2
-        yawServo->attach(YAW_SERVO_PIN);  // Attach yaw servo to pin J1
+        pitchServo.attach(PITCH_SERVO_PIN);  // Attach pitch servo to pin J2
+        yawServo.attach(YAW_SERVO_PIN);  // Attach yaw servo to pin J1
         double init[2] = {0.0, 0.0}; //initial angles in radians
         moveServos(init); //move servos to the initial angles
         return true;
@@ -28,7 +28,7 @@ void Actuators::moveServos(double* gimbalAngles) {
     // Serial.println(yawAngle);
     // // Write the angles to the servos
 
-    pitchServo->write(servoAngles[0]);
-    yawServo->write(servoAngles[1]);
+    pitchServo.write(servoAngles[0]);
+    yawServo.write(servoAngles[1]);
 
 }

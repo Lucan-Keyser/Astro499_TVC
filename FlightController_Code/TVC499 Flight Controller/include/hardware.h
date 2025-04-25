@@ -28,7 +28,7 @@ class Hardware {
         Hardware() {}
        
         bool initialize();
-        void playAlertTone(int frequency, int duration);
+        void playAlertTone(double frequency,  double duration);
         void checkPyroContinuity();
         void setPyros();
         void music();

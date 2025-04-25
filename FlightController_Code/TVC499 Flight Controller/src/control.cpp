@@ -15,10 +15,9 @@ bool Control::initialize() {
 }
 void Control::control() {
     //state vector
-    *quaternions = sensors.getQuaternions(); //quaternion vector
-    *omega = sensors.getGyroRates(); //angular velocity vector
 
-    Matrix<6, 1, double> x = {*quaternions[1], *quaternions[2], *quaternions[3], *omega[0], *omega[1], *omega[2]}; 
+    Matrix<6, 1, double> x = {sensors.getQuaternions()[1], sensors.getQuaternions()[2], sensors.getQuaternions()[3], 
+        sensors.getGyroRates()[0], sensors.getGyroRates()[1], sensors.getGyroRates()[2]}; 
     Matrix<3, 1, double> u = -K * x; //u is the control torque vector
     //u(0) is roll torque, u(1) is pitch torque, u(2) is yaw torque
     torque[0] = u(1);

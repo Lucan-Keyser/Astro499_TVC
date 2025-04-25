@@ -9,9 +9,11 @@ FlightComputer flightComputer; // Flight computer object
 
 void setup() {
   flightComputer.initialize(); // Initialize flight computer
+  // Serial.println("Flight computer initialized successfully!");
 }
     
 
 void loop() {
+  // Serial.println("Main start");
   flightComputer.update(); // Update flight computer
 }

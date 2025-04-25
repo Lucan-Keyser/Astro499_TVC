@@ -20,13 +20,14 @@ bool Hardware::initialize() {
     digitalWrite(LAUNCH_PYRO_FIRE, LOW); 
     digitalWrite(SEP_PYRO_FIRE, LOW);
     music(); // Play alert tone on startup
+    // Serial.println("Inside hardware");
     return true;
 }
 
-void Hardware::playAlertTone(int frequency, int duration) {
-    unsigned long period = 1000000 / frequency; // Period in microseconds
-    unsigned long halfPeriod = period / 2; // Half period in microseconds
-    unsigned long startTime = millis(); 
+void Hardware::playAlertTone(double frequency,  double duration) {
+    double period = 1000000 / frequency; // Period in microseconds
+    double halfPeriod = period / 2; // Half period in microseconds
+    double startTime = millis(); 
     while (millis() - startTime < duration) { 
         digitalWrite(BUZZER_HIGH, HIGH); // Set buzzer high
         digitalWrite(BUZZER_LOW, LOW); // set buzzer low

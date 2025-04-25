@@ -11,8 +11,8 @@
 class Actuators {
     private:
         double servoAngles[2] = {0.0, 0.0}; // Servo angles [pitch, yaw]
-        PWMServo* pitchServo; // Pointer to pitch servo object
-        PWMServo* yawServo; // Pointer to yaw servo object
+        PWMServo pitchServo; // Pointer to pitch servo object
+        PWMServo yawServo; // Pointer to yaw servo object
 
     
 
