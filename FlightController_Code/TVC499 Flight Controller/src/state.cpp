@@ -75,7 +75,7 @@ void State::executeState() {
                 sdLogState = 3;
                 communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
             }
-            state = GROUND_IDLE; //move to ground idle state
+            state = RECOVERY; //move to ground idle state
             
             break;
         case ABORT:
@@ -90,9 +90,9 @@ void State::executeState() {
                 sdLogState = 3;
                 communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
             }
-            state = GROUND_IDLE; //move to ground idle state
+            state = RECOVERY; //move to ground idle state
             break;
-        case GROUND_IDLE:
+        case RECOVERY:
 
             break;
     }

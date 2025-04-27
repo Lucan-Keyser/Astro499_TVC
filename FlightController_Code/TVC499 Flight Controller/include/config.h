@@ -40,7 +40,7 @@
 #define PITCH_SERVO_PIN 8 // Pin for pitch servo J2
 #define YAW_SERVO_PIN 9 // Pin for yaw servo J1
 #define COUNTDOWN_TIME 3000 // Countdown time in milliseconds
-
+#define BNO_SAMPLE_RATE 5000 // BNO085 sample rate in microseconds
 
 
 // LED Configuration
@@ -65,7 +65,7 @@
 #define UNPOWERED_ASCENT 4
 #define DESCENT 5
 #define ABORT 6
-#define GROUND_IDLE 7
+#define RECOVERY 7
 
 // Other Constants
 #define TELEMETRY_INTERVAL 200  // Send serial data every 200ms

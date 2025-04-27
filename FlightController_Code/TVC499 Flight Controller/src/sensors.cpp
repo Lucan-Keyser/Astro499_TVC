@@ -44,12 +44,12 @@ bool SensorSystem::initialize() {
 
     if (success) {
         // Enable gyroscope reports on the BNO085
-        if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED)) {
+        if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED, BNO_SAMPLE_RATE)) {
             Serial.println("Could not enable gyroscope reports");
             success = false;
         }
         // Enable accelerometer reports on the BNO085
-        if (!bno.enableReport(SH2_ACCELEROMETER)){
+        if (!bno.enableReport(SH2_ACCELEROMETER, BNO_SAMPLE_RATE)){
             Serial.println("Could not enable accelerometer reports");
             success = false;
         }
@@ -215,11 +215,11 @@ bool SensorSystem::resetSensors() {
     bool success = true;
     success = resetIMU();
     success = zeroAltimeter();
-    if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED)) {
+    if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED, BNO_SAMPLE_RATE)) {
         Serial.println("Could not enable gyroscope reports");
         success = false;
     }
-    if (!bno.enableReport(SH2_ACCELEROMETER)){
+    if (!bno.enableReport(SH2_ACCELEROMETER, BNO_SAMPLE_RATE)){
         Serial.println("Could not enable accelerometer reports");
         success = false;
     }

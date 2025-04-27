@@ -46,7 +46,7 @@ void FlightComputer::update() {
 
 
     state.executeState(); // Execute state machine logic
-    Serial.println(state.getState()); // Print current state to serial monitor
+    // Serial.println(state.getState()); // Print current state to serial monitor
     // Serial.println("State machine executed successfully!");
 }
 
