@@ -52,7 +52,7 @@ void Hardware::update() {
 
 void Hardware::checkPyroContinuity() {
     pyroContinuity1 = false;
-    pyroContinuity2 = 0.0; 
+    pyroContinuity2 = false; 
     int pyro1Value = analogRead(LAUNCH_PYRO_CONT); // Read analog value from pyro 1 continuity pin
     int pyro2Value = analogRead(SEP_PYRO_CONT); // Read analog value from pyro 2 continuity pin
 

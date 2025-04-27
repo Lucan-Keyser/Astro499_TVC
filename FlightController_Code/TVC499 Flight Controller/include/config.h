@@ -24,9 +24,9 @@
 #define SERVO_OFFSET_YAW -2.5 //Yaw servo offset in degrees
 #define MAX_GIMBAL_ANGLE DEG_TO_RAD * 8
 #define MOMENT_OF_INERTIA 0.1 //Moment of inertia in kg*m^2
-#define MOMENT_ARM 0.49 //Moment arm in meters
+#define MOMENT_ARM 0.485 //Moment arm in meters
 #define THRUST 15
-#define LAUNCH_ACCELERATION -15 //launch detection limit
+#define LAUNCH_ACCELERATION -12 //launch detection limit
 #define ABORT_CRITERIA 60 //how far we can pitch/yaw before aborting
 #define BURN_TIME 3250 //burn time in millis
 #define FREE_FALL_ACCEL 4// criteria for free fall acceleration, m/s^2.
@@ -39,8 +39,11 @@
 #define BNO_RESET_PIN 15 // Pin for BNO reset
 #define PITCH_SERVO_PIN 8 // Pin for pitch servo J2
 #define YAW_SERVO_PIN 9 // Pin for yaw servo J1
-#define COUNTDOWN_TIME 3000 // Countdown time in milliseconds
-#define BNO_SAMPLE_RATE 5000 // BNO085 sample rate in microseconds
+#define COUNTDOWN_TIME 3000 // Countdown time in millisecond
+#define BNO_GYRO_SAMPLE_RATE 5000 // BNO085 sample rate in microseconds
+#define BNO_ACCEL_SAMPLE_RATE 30000 //BNO85
+#define EXPECTED_APOGEE_TIME 7500 //Expected apogee time in ms
+
 
 
 // LED Configuration

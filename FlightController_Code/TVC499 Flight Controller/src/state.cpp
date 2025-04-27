@@ -62,6 +62,10 @@ void State::executeState() {
                 control.updateControlBoolean(false); //turn off control mode
                 state++;
             } 
+        
+            if ((millis() - startLaunch) >= EXPECTED_APOGEE_TIME) { //if we should be done burning and we're in freefall
+                state = ABORT;
+            }
             break;
         case DESCENT:
             hardware.setSeparationBool(true); //trigger separation sequence

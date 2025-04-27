@@ -44,12 +44,12 @@ bool SensorSystem::initialize() {
 
     if (success) {
         // Enable gyroscope reports on the BNO085
-        if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED, BNO_SAMPLE_RATE)) {
+        if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED, BNO_GYRO_SAMPLE_RATE)) {
             Serial.println("Could not enable gyroscope reports");
             success = false;
         }
         // Enable accelerometer reports on the BNO085
-        if (!bno.enableReport(SH2_ACCELEROMETER, BNO_SAMPLE_RATE)){
+        if (!bno.enableReport(SH2_ACCELEROMETER, BNO_ACCEL_SAMPLE_RATE)){
             Serial.println("Could not enable accelerometer reports");
             success = false;
         }
@@ -88,7 +88,7 @@ void SensorSystem::initializeQuaternions() {
         ySum += accelerometer[1];
         zSum += accelerometer[2];
 
-        delay(10);
+        delay(30); // Delay to match sample rate
     }
 
     double xAvg = xSum/n;
@@ -125,7 +125,7 @@ void SensorSystem::updateIMU() {
     // Record start time
     sh2_SensorValue_t sensorValue;
     
-    
+    // double bnoStart = micros();
     if (bno.getSensorEvent(&sensorValue)) {
             // Process calibrated gyroscope data
             if (sensorValue.sensorId == SH2_GYROSCOPE_CALIBRATED) {
@@ -139,19 +139,13 @@ void SensorSystem::updateIMU() {
             }
         }
 
+    // Serial.print(micros()-bnoStart);
+    // Serial.print(", ");
+    // Serial.println(gyroRates[0]);
     dt = (micros() - lastSensorTime) / 1000000.0; // Calculate time delta in seconds as close as possible to sensor reading;
     lastSensorTime = micros(); // Update last sensor time
 
-    // Update accelerometer data, dT not required for this
-    if (bno.getSensorEvent(&sensorValue)) {
-        // Serial.println("lmao");
-        //get accelerometer data
-        if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
-            accelerometer[0] = sensorValue.un.accelerometer.x;
-            accelerometer[1] = -sensorValue.un.accelerometer.y;
-            accelerometer[2] = sensorValue.un.accelerometer.z;
-            }
-        }
+   
     // Calculate time delta
     
     double q0 = quaternions[0], q1 = quaternions[1], q2 = quaternions[2], q3 = quaternions[3];
@@ -188,6 +182,18 @@ void SensorSystem::updateIMU() {
                      1 - 2 * (quaternions[2] * quaternions[2] + quaternions[3] * quaternions[3]))); 
 
 
+     // Update accelerometer data, dT not required for this. Moved to end to test affect on gyro
+     if (bno.getSensorEvent(&sensorValue)) {
+        // Serial.println("lmao");
+        //get accelerometer data
+        if (sensorValue.sensorId == SH2_ACCELEROMETER) { //coordinate transform
+            accelerometer[0] = sensorValue.un.accelerometer.x;
+            accelerometer[1] = -sensorValue.un.accelerometer.y;
+            accelerometer[2] = sensorValue.un.accelerometer.z;
+            }
+        }
+
+
 }
 
 bool SensorSystem::updateAltimeter() {
@@ -215,11 +221,11 @@ bool SensorSystem::resetSensors() {
     bool success = true;
     success = resetIMU();
     success = zeroAltimeter();
-    if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED, BNO_SAMPLE_RATE)) {
+    if (!bno.enableReport(SH2_GYROSCOPE_CALIBRATED, BNO_GYRO_SAMPLE_RATE)) {
         Serial.println("Could not enable gyroscope reports");
         success = false;
     }
-    if (!bno.enableReport(SH2_ACCELEROMETER, BNO_SAMPLE_RATE)){
+    if (!bno.enableReport(SH2_ACCELEROMETER, BNO_ACCEL_SAMPLE_RATE)){
         Serial.println("Could not enable accelerometer reports");
         success = false;
     }
