@@ -34,7 +34,6 @@ void FlightComputer::update() {
     // Serial.println("Looping");
     sensors.updateIMU();
     // Serial.println("Sensors updated successfully!");
-
     
     // // Update control system
     control.control();
@@ -46,6 +45,7 @@ void FlightComputer::update() {
 
 
     state.executeState(); // Execute state machine logic
+    
     // Serial.println(state.getState()); // Print current state to serial monitor
     // Serial.println("State machine executed successfully!");
 }

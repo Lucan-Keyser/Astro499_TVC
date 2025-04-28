@@ -8,6 +8,7 @@
 #include <sensors.h>
 #include <actuators.h>
 #include <BasicLinearAlgebra.h>
+#include "../include/config.h"
 using namespace BLA;
 class Control {
     private:
@@ -21,9 +22,9 @@ class Control {
        
         bool controlActive = false; // Control active flag
 
-        Matrix<3, 6, double> K = {10.0000000000000,	0,	0,	1.01242283656583,	0,	0,
-                         0,	10.0000000000000,	0,	0,	1.04880884817015,	0,
-                        0,	0,	10.0000000000000,	0,	0,	1.04880884817015};
+        Matrix<3, 6, double> K = {0, 0,	0, 0, 0, 0,
+                                0, K_PROPORTIONAL_GAIN, 0,	0, K_DERIVATIVE_GAIN, 0,
+                                0, 0, K_PROPORTIONAL_GAIN, 0, 0, K_DERIVATIVE_GAIN};
 
     public:
 

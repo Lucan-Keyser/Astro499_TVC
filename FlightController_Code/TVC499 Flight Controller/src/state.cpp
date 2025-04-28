@@ -94,10 +94,11 @@ void State::executeState() {
                 sdLogState = 3;
                 communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
             }
+            control.updateControlBoolean(false); //turn off control mode
             state = RECOVERY; //move to ground idle state
             break;
         case RECOVERY:
-
+            hardware.music();
             break;
     }
 
@@ -151,4 +152,67 @@ bool State::detectApogee(double altitude) {
     }
     return true; //if we get here, something went wrong, return true to avoid infinite loop
     
+}
+
+
+void State::executeStateStaticFire() {
+    switch (state) {
+        case PAD_IDLE:
+            if (communication.checkForCommands() == "CALIBRATE") { //check for commands from LoRa
+                sensors.resetSensors();
+                hardware.music();
+                state++;
+            }
+            break;
+        case CALIBRATE:
+            if (communication.checkForCommands() == "LAUNCH") { //check for commands from LoRa
+                hardware.setLaunchBool(true); //trigger launch sequence
+                startLaunch = millis();
+                control.updateControlBoolean(true);
+                state = ASCENT;
+            }
+
+            break;
+        case COUNTDOWN:
+            // not used
+            break;
+        case ASCENT:
+            logdata.logFlightData(state); //log data
+            if ((millis() - startLaunch) >= (BURN_TIME + 1000)) { //if we should be done burning 
+                state = DESCENT;
+            }
+            break;
+        case UNPOWERED_ASCENT:
+            //not used
+            break;
+        case DESCENT:
+            sdLogState = 1; //set SD logging state to 1
+            communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
+            // Use the new high-speed SD writing function instead of dumpToSerial
+            if (logdata.dumpToSD()) {
+                sdLogState = 2;
+                communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
+            } else {
+                sdLogState = 3;
+                communication.sendDataNoDelay(state, sdLogState); //send data to LoRa
+            }
+            control.updateControlBoolean(false);
+            state = RECOVERY; //move to recovery state
+            
+            break;
+        case ABORT:
+            //not used
+            break;
+        case RECOVERY:
+            hardware.music();
+            break;
+    }
+
+    if (communication.checkForCommands() == "RESET") { //check for commands from LoRa
+        state = 0; //reset state machine
+    }
+
+    communication.sendData(state, sdLogState); //send data to LoRa
+    
+   
 }

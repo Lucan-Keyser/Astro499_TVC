@@ -88,7 +88,7 @@ void SensorSystem::initializeQuaternions() {
         ySum += accelerometer[1];
         zSum += accelerometer[2];
 
-        delay(30); // Delay to match sample rate
+        delay(ORIENTATION_CALIBRATION_DELAY); // Delay to match sample rate
     }
 
     double xAvg = xSum/n;

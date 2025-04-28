@@ -19,6 +19,8 @@ bool Hardware::initialize() {
     pinMode(SEP_PYRO_FIRE, OUTPUT);
     digitalWrite(LAUNCH_PYRO_FIRE, LOW); 
     digitalWrite(SEP_PYRO_FIRE, LOW);
+    pinMode(LAUNCH_PYRO_CONT, INPUT); // Set pyro continuity pins as input
+    pinMode(SEP_PYRO_CONT, INPUT); // Set pyro continuity pins as input
     music(); // Play alert tone on startup
     // Serial.println("Inside hardware");
     return true;
@@ -53,15 +55,19 @@ void Hardware::update() {
 void Hardware::checkPyroContinuity() {
     pyroContinuity1 = false;
     pyroContinuity2 = false; 
-    int pyro1Value = analogRead(LAUNCH_PYRO_CONT); // Read analog value from pyro 1 continuity pin
-    int pyro2Value = analogRead(SEP_PYRO_CONT); // Read analog value from pyro 2 continuity pin
-
+    double pyro1Value = analogRead(LAUNCH_PYRO_CONT); // Read analog value from pyro 1 continuity pin
+    double pyro2Value = analogRead(SEP_PYRO_CONT); // Read analog value from pyro 2 continuity pin
+    // Serial.print("Pyro 1 Continuity: ");
+    // Serial.println(pyro1Value);    
+    // Serial.print("Pyro 2 Continuity: ");
+    // Serial.println(pyro2Value); 
     if (pyro1Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) { //   3.3/1023 is the conversion factor for 10 bit ADC on teensy (0-1023 to 0-3.3V)
         pyroContinuity1 = true;
     }
     if (pyro2Value > CONTINUITY_THRESHOLD * (3.3 / 1023)) { 
         pyroContinuity2 = true; 
     } 
+
 }
 
 void Hardware::setPyros() {
